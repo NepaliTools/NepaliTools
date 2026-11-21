@@ -1,0 +1,9 @@
+/target
+/dist
+/tmp
+/data/upstream
+*.log
+*.exe
+Thumbs.db
+.DS_Store
+/crates/host/gen

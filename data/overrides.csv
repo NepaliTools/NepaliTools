@@ -1,0 +1,148 @@
+bs_year,month,chosen,rule,values,note
+1975,5,31,majority,py=31;bik=30;nep=31,Strict majority of the independent tables agrees; the dissent is recorded in values.
+1975,6,30,majority,py=30;bik=31;nep=30,Strict majority of the independent tables agrees; the dissent is recorded in values.
+1977,6,30,majority,py=30;bik=30;nep=31,Strict majority of the independent tables agrees; the dissent is recorded in values.
+1977,7,30,majority,py=30;bik=30;nep=29,Strict majority of the independent tables agrees; the dissent is recorded in values.
+1977,9,29,majority,py=29;bik=29;nep=30,Strict majority of the independent tables agrees; the dissent is recorded in values.
+1977,10,30,majority,py=30;bik=30;nep=29,Strict majority of the independent tables agrees; the dissent is recorded in values.
+1981,11,30,majority,py=30;bik=30;nep=29,Strict majority of the independent tables agrees; the dissent is recorded in values.
+1981,12,30,majority,py=30;bik=30;nep=31,Strict majority of the independent tables agrees; the dissent is recorded in values.
+1989,7,30,majority,py=29;bik=30;nep=30,Strict majority of the independent tables agrees; the dissent is recorded in values.
+1989,8,29,majority,py=30;bik=29;nep=29,Strict majority of the independent tables agrees; the dissent is recorded in values.
+1991,8,30,majority,py=30;bik=29;nep=30,Strict majority of the independent tables agrees; the dissent is recorded in values.
+1991,9,29,majority,py=29;bik=30;nep=29,Strict majority of the independent tables agrees; the dissent is recorded in values.
+1993,3,31,majority,py=32;bik=31;nep=31,Strict majority of the independent tables agrees; the dissent is recorded in values.
+1993,4,32,majority,py=31;bik=32;nep=32,Strict majority of the independent tables agrees; the dissent is recorded in values.
+1998,5,31,majority,py=31;bik=31;nep=32,Strict majority of the independent tables agrees; the dissent is recorded in values.
+1998,6,31,majority,py=31;bik=31;nep=30,Strict majority of the independent tables agrees; the dissent is recorded in values.
+2062,1,30,tie-bik,py=31;bik=30;ndc=30;nep=31,Two independent lineages disagree 2-2; tie broken to the bikram-sambat/nepali-date-converter lineage, alternatives recorded.
+2062,2,32,tie-bik,py=31;bik=32;ndc=32;nep=31,Two independent lineages disagree 2-2; tie broken to the bikram-sambat/nepali-date-converter lineage, alternatives recorded.
+2087,8,30,majority,py=29;bik=30;ndc=30;nep=30,Strict majority of the independent tables agrees; the dissent is recorded in values.
+2087,9,29,tie-bik,py=30;bik=29;ndc=29;nep=30,Two independent lineages disagree 2-2; tie broken to the bikram-sambat/nepali-date-converter lineage, alternatives recorded.
+2090,2,32,majority,py=32;bik=32;ndc=32;nep=31,Strict majority of the independent tables agrees; the dissent is recorded in values.
+2090,3,31,majority,py=31;bik=31;ndc=31;nep=32,Strict majority of the independent tables agrees; the dissent is recorded in values.
+2090,4,32,majority,py=32;bik=32;ndc=32;nep=31,Strict majority of the independent tables agrees; the dissent is recorded in values.
+2090,6,30,majority,py=30;bik=30;ndc=30;nep=31,Strict majority of the independent tables agrees; the dissent is recorded in values.
+2090,8,30,majority,py=30;bik=30;ndc=30;nep=29,Strict majority of the independent tables agrees; the dissent is recorded in values.
+2090,9,29,majority,py=29;bik=29;ndc=29;nep=30,Strict majority of the independent tables agrees; the dissent is recorded in values.
+2090,10,30,majority,py=30;bik=30;ndc=30;nep=29,Strict majority of the independent tables agrees; the dissent is recorded in values.
+2091,1,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2091,2,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2091,3,32,single-source,py=32;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2091,4,32,single-source,py=31;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2091,5,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2091,6,30,single-source,py=31;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2091,7,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2091,8,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2091,9,30,single-source,py=29;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2091,10,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2091,11,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2091,12,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2092,1,31,single-source,py=30;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2092,2,32,single-source,py=31;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2092,3,31,single-source,py=32;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2092,4,32,single-source,py=32;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2092,5,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2092,6,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2092,7,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2092,8,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2092,9,29,single-source,py=29;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2092,10,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2092,11,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2092,12,31,single-source,py=30;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2093,1,31,single-source,py=30;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2093,2,31,single-source,py=32;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2093,3,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2093,4,32,single-source,py=32;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2093,5,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2093,6,31,single-source,py=30;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2093,7,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2093,8,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2093,9,30,single-source,py=29;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2093,10,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2093,11,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2093,12,31,single-source,py=30;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2094,1,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2094,2,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2094,3,32,single-source,py=32;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2094,4,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2094,5,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2094,6,31,single-source,py=30;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2094,7,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2094,8,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2094,9,30,single-source,py=29;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2094,10,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2094,11,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2094,12,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2095,1,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2095,2,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2095,3,32,single-source,py=32;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2095,4,32,single-source,py=31;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2095,5,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2095,6,30,single-source,py=31;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2095,7,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2095,8,29,single-source,py=29;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2095,9,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2095,10,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2095,11,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2095,12,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2096,1,31,single-source,py=30;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2096,2,32,single-source,py=31;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2096,3,31,single-source,py=32;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2096,4,32,single-source,py=32;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2096,5,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2096,6,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2096,7,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2096,8,30,single-source,py=29;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2096,9,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2096,10,29,single-source,py=29;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2096,11,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2096,12,31,single-source,py=30;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2097,1,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2097,2,31,single-source,py=32;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2097,3,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2097,4,32,single-source,py=32;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2097,5,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2097,6,31,single-source,py=30;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2097,7,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2097,8,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2097,9,30,single-source,py=29;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2097,10,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2097,11,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2097,12,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2098,1,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2098,2,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2098,3,32,single-source,py=32;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2098,4,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2098,5,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2098,6,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2098,7,30,single-source,py=29;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2098,8,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2098,9,30,single-source,py=29;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2098,10,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2098,11,30,single-source,py=29;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2098,12,30,single-source,py=31;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2099,1,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2099,2,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2099,3,32,single-source,py=32;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2099,4,32,single-source,py=31;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2099,5,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2099,6,30,single-source,py=31;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2099,7,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2099,8,29,single-source,py=29;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2099,9,30,single-source,py=29;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2099,10,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2099,11,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2099,12,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2100,1,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2100,2,32,single-source,py=32;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2100,3,31,single-source,py=31;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2100,4,32,single-source,py=32;nep=32,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2100,5,31,single-source,py=30;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2100,6,30,single-source,py=31;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2100,7,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2100,8,30,single-source,py=29;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2100,9,29,single-source,py=30;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2100,10,29,single-source,py=29;nep=29,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2100,11,30,single-source,py=30;nep=30,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).
+2100,12,31,single-source,py=30;nep=31,No gazette or second table for this year; nepdate is the only coherent source (nepali-datetime has an invalid 364-day 2096).

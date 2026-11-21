@@ -1,0 +1,182 @@
+# NepaliToolkit, a Nepali date and Bikram Sambat tray app for Windows
+
+![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D4)
+![Rust](https://img.shields.io/badge/rust-1.100%2B-orange)
+![Tauri](https://img.shields.io/badge/Tauri-2-24C8DB)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Offline](https://img.shields.io/badge/network-none-success)
+
+NepaliToolkit keeps today's Nepali date in the Windows notification area and
+converts dates between Bikram Sambat (BS) and the Gregorian calendar in both
+directions. It is built in Rust with Tauri 2 and the system webview, and it runs
+offline. It does not use Electron or Node, and it does not bundle a browser.
+
+<p align="center">
+  <img src="docs/evidence/panel-today-en.png" width="300" alt="NepaliToolkit tray panel showing today's Nepali date मंसिर ५, २०८३ with an English interface">
+</p>
+
+## What it does
+
+The tray icon shows the BS day in Devanagari digits. Hovering it shows the full
+date, for example `मंसिर ५, २०८३ - Saturday`. A left click or `Ctrl+Alt+N` opens
+the panel, which always shows today's full BS date, the weekday and the AD
+equivalent.
+
+The app ships two modules:
+
+- Today shows the date and a copy button.
+- Converter translates a Gregorian date to BS and a BS date to Gregorian, live in
+  both directions.
+
+The Modules page turns either module off. Settings holds the interface language
+(English by default, Nepali available), a switch that uses Nepal time
+(UTC+05:45) instead of the machine's date, and the autostart toggle.
+
+The Nepali date always renders in Nepali, with Devanagari digits and Nepali month
+names, in both interface languages. The weekday and the Gregorian date follow the
+interface language.
+
+The app starts with Windows by default, runs as a single instance, and stores no
+telemetry.
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/evidence/panel-converter-en.png" width="250" alt="BS to AD and AD to BS converter with a Devanagari Bikram Sambat date">
+  <img src="docs/evidence/panel-modules-off.png" width="250" alt="Modules page enabling and disabling tray tools">
+  <img src="docs/evidence/panel-settings-en.png" width="250" alt="Settings page with language, Nepal date override and start with Windows">
+</p>
+
+<p align="center"><em>Convert, Modules and Settings. The tray tooltip shows the full date, for example मंसिर ५, २०८३ - Saturday.</em></p>
+
+## What Bikram Sambat is
+
+Bikram Sambat (BS, विक्रम संवत्) is Nepal's official civil calendar and the basis
+of the Nepali patro. It runs about 56 years and 8 months ahead of the Gregorian
+calendar.
+
+BS month lengths do not follow a formula. They are published in a table that
+changes from year to year, so the accuracy of a Nepali date app depends on the
+table it ships as much as on its code. NepaliToolkit supports BS 1975 to 2100,
+which is 1918-04-13 to 2044-04-13 in the Gregorian calendar. Years after 2090
+have no published gazette yet, and the interface marks them as projected.
+
+## Install
+
+There is no installer and no binary release yet. The app is unsigned and ships as
+a single portable executable.
+
+Requirements are Windows 10 or 11 and the WebView2 runtime. WebView2 is
+preinstalled on Windows 11; older Windows 10 machines need the
+[Evergreen runtime](https://developer.microsoft.com/microsoft-edge/webview2/).
+
+```powershell
+git clone https://github.com/NepaliTools/NepaliTools.git
+cd NepaliTools
+cargo build --release -p nepalitoolkit
+Copy-Item target\release\nepalitoolkit.exe dist\NepaliToolkit.exe
+```
+
+Run `dist\NepaliToolkit.exe`. Windows 11 usually places new tray icons in the
+hidden-icons overflow behind `^`. Drag the icon onto the taskbar to pin it.
+Autostart is on by default and can be turned off in Settings.
+
+To remove the app, turn autostart off in Settings, quit from the panel or the
+tray menu, then delete the executable and `%APPDATA%\com.aaxyat.nepalitoolkit\`.
+
+## Build from source
+
+You need Rust with the MSVC toolchain
+(`rustup default stable-x86_64-pc-windows-msvc`). No Node.js or npm is involved.
+
+```powershell
+cargo test --workspace
+cargo build --release -p nepalitoolkit
+```
+
+The app embeds the date table at compile time with `include_str!`. The UI in
+`crates/host/ui` is plain HTML, CSS and JavaScript, so there is no frontend build
+step.
+
+## Data and accuracy
+
+The fetch script assembles `data/bs-months.csv` from four separate Bikram Sambat
+tables. A strict majority decides each month length. The script writes ties and
+single-source years to `data/overrides.csv` with the competing values and a note.
+`data/SOURCES.md` lists each source, its version, URL, retrieval date and SHA256.
+
+The test suite converts every day in both directions, 46,022 days each way. It
+checks monotonicity and external anchors, and it fails if a source disagreement
+is not recorded in the overrides file.
+
+To refresh the snapshot, which is the only step that uses the network:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\fetch-bs-data.ps1
+```
+
+## Privacy
+
+The app makes no network requests at runtime and collects no telemetry. Settings
+live in `%APPDATA%\com.aaxyat.nepalitoolkit\settings.json`. A diagnostic log sits
+next to it and never leaves the machine.
+
+## FAQ
+
+### How do I show the Nepali date in the Windows taskbar?
+
+Run NepaliToolkit and pin its tray icon. The icon shows the BS day in Devanagari,
+and the tooltip carries the full date.
+
+### Can it convert BS to AD and AD to BS without internet?
+
+Yes. Both directions use the bundled table, and the app makes no network calls.
+
+### Which years are supported?
+
+BS 1975 to 2100, or 1918-04-13 to 2044-04-13 AD. Results after 2090 are labelled
+projected because no gazette exists for those years yet.
+
+### Why does the icon show the day and not the month?
+
+A day number stays readable at 16 px, and a month name does not. The tooltip and
+the panel carry the full date. Each day from 1 to 32 is drawn at 16, 20, 24 and
+32 pixels, so two Devanagari digits stay legible, and the app picks the size that
+matches your display scale.
+
+### Is there a macOS version?
+
+Not yet. The host is Tauri 2 and the date core does not depend on the platform.
+macOS is the next milestone.
+
+### Does it need Node.js, npm, or Electron?
+
+No. The app uses Rust and the system webview, and the panel is plain HTML, CSS and
+JavaScript.
+
+## Project layout
+
+```
+crates/core/       npt-core: BS conversion, formatting, no dependencies
+crates/host/       Tauri 2 app: tray, panel, commands, settings
+crates/host/ui/    plain HTML/CSS/JS panel, no build step
+data/              bs-months.csv, sources/, overrides.csv, SOURCES.md
+tools/             data fetch, icon and badge generation, capture helpers
+docs/adr/          architecture decisions
+docs/evidence/     acceptance screenshots
+wiki/              wiki source pages
+```
+
+More reading: [GLOSSARY](GLOSSARY.md), [ACCEPTANCE](ACCEPTANCE.md),
+[architecture decisions](docs/adr/), [changelog](CHANGELOG.md),
+[contributing](CONTRIBUTING.md).
+
+## Status
+
+V1, Windows only, unsigned, used daily by its author. The project is not
+affiliated with the Government of Nepal or any calendar authority.
+
+## License
+
+MIT, see [LICENSE](LICENSE). The bundled month-length data comes from MIT
+licensed projects listed in [data/SOURCES.md](data/SOURCES.md).

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="np">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NepaliToolkit</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app" data-lang="np">
+      <header id="header">
+        <div class="eyebrow" id="header-label">आज</div>
+        <div class="bs" id="header-bs">&nbsp;</div>
+        <div class="sub" id="header-sub"></div>
+      </header>
+
+      <nav class="segmented" id="segmented">
+        <button class="seg is-active" id="seg-today" data-screen="today">आज</button>
+        <button class="seg" id="seg-converter" data-screen="converter">परिवर्तन</button>
+      </nav>
+
+      <main id="main">
+        <section class="screen is-active" id="screen-today">
+          <div class="today-card">
+            <div class="today-date" id="today-bs">&nbsp;</div>
+            <div class="today-sub" id="today-sub"></div>
+            <button class="copy wide" id="copy-today">प्रतिलिपि</button>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-converter">
+          <div class="field">
+            <div class="field-head">
+              <span class="field-label" id="lbl-ad">ईस्वी मिति</span>
+              <button class="copy" id="conv-today">आज</button>
+            </div>
+            <input type="date" id="ad-input" />
+          </div>
+
+          <p class="error" id="conv-error" hidden></p>
+
+          <div class="result">
+            <div class="result-date" id="res-bs">&nbsp;</div>
+            <div class="result-sub" id="res-bs-sub"></div>
+            <button class="copy" data-copy="bs" id="copy-bs">प्रतिलिपि</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="field-row">
+            <label class="field small">
+              <span class="field-label" id="lbl-year">वर्ष</span>
+              <select id="bs-year"></select>
+            </label>
+            <label class="field small">
+              <span class="field-label" id="lbl-month">महिना</span>
+              <select id="bs-month"></select>
+            </label>
+            <label class="field small">
+              <span class="field-label" id="lbl-day">गते</span>
+              <select id="bs-day"></select>
+            </label>
+          </div>
+
+          <div class="result">
+            <div class="result-date" id="res-ad">&nbsp;</div>
+            <div class="result-sub" id="res-ad-sub"></div>
+            <button class="copy" data-copy="ad" id="copy-ad">प्रतिलिपि</button>
+          </div>
+
+          <p class="note" id="projected-note" hidden></p>
+        </section>
+
+        <section class="screen" id="screen-empty">
+          <p class="row-sub" id="empty-text"></p>
+          <button class="ghost" id="empty-modules"></button>
+        </section>
+
+        <section class="screen" id="screen-modules">
+          <h2 id="modules-title">मोड्युल</h2>
+          <div class="row">
+            <div>
+              <div class="row-title" id="mod-today-title">आज</div>
+              <div class="row-sub" id="mod-today-sub"></div>
+            </div>
+            <label class="switch"><input type="checkbox" id="mod-today" /><span></span></label>
+          </div>
+          <div class="row">
+            <div>
+              <div class="row-title" id="mod-conv-title">परिवर्तन</div>
+              <div class="row-sub" id="mod-conv-sub"></div>
+            </div>
+            <label class="switch"><input type="checkbox" id="mod-converter" /><span></span></label>
+          </div>
+          <button class="ghost" data-back id="modules-back">फर्कनु</button>
+        </section>
+
+        <section class="screen" id="screen-settings">
+          <h2 id="settings-title">सेटिङ</h2>
+          <div class="row">
+            <div class="row-title" id="set-lang-title">भाषा</div>
+            <select id="lang-select" class="compact">
+              <option value="np">नेपाली</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+          <div class="row">
+            <div>
+              <div class="row-title" id="set-nepal-title">नेपालको मिति</div>
+              <div class="row-sub">UTC+05:45</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="set-nepal" /><span></span></label>
+          </div>
+          <div class="row">
+            <div>
+              <div class="row-title" id="set-autostart-title">सुरुमा चलाउने</div>
+              <div class="row-sub" id="set-autostart-sub"></div>
+            </div>
+            <label class="switch"><input type="checkbox" id="set-autostart" /><span></span></label>
+          </div>
+          <div class="row">
+            <div>
+              <div class="row-title" id="set-hotkey-title">सर्टकट</div>
+              <div class="row-sub" id="set-hotkey-sub">Ctrl+Alt+N</div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="row-title" id="set-version-title">संस्करण</div>
+            <div class="row-sub" id="set-version"></div>
+          </div>
+          <button class="ghost" data-back id="settings-back">फर्कनु</button>
+        </section>
+      </main>
+
+      <footer>
+        <button class="foot" id="nav-modules">मोड्युल</button>
+        <button class="foot" id="nav-settings">सेटिङ</button>
+        <button class="foot" id="quit">बन्द</button>
+      </footer>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>

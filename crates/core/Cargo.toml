@@ -1,0 +1,8 @@
+[package]
+name = "npt-core"
+description = "Bikram Sambat conversion and Nepali formatting for NepaliToolkit"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]

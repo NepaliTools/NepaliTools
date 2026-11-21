@@ -1,0 +1,42 @@
+name: Feature request
+description: Suggest a Nepali tool or an improvement to the host
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        NepaliToolkit is a module host. Say which module the idea belongs to, or
+        whether it needs a new one.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that the app makes hard today?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: How should it work, and where does it live in the app?
+    validations:
+      required: true
+  - type: dropdown
+    id: module
+    attributes:
+      label: Where does it belong?
+      options:
+        - Today
+        - Converter
+        - Modules page
+        - Settings
+        - A new module
+        - The tray host itself
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

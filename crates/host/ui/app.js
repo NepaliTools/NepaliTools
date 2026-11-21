@@ -1,0 +1,417 @@
+const tauri = window.__TAURI__;
+const invoke = tauri && tauri.core ? tauri.core.invoke : null;
+const listen = tauri && tauri.event ? tauri.event.listen : null;
+
+const STR = {
+  np: {
+    headerToday: "आज",
+    tabToday: "आज",
+    tabConvert: "परिवर्तन",
+    adLabel: "ईस्वी मिति",
+    year: "वर्ष",
+    month: "महिना",
+    day: "गते",
+    copy: "प्रतिलिपि",
+    copied: "सकियो",
+    todayBtn: "आज",
+    errInvalid: "यो मिति मिलेन।",
+    errRange: "समर्थित दायरा बाहिरको मिति हो।",
+    projected: "२०९१ र त्यसपछिको मिति प्रक्षेपित हो।",
+    modules: "मोड्युल",
+    settings: "सेटिङ",
+    quit: "बन्द",
+    modulesTitle: "मोड्युल",
+    modTodayTitle: "आज",
+    modTodaySub: "आजको विक्रम सम्वत् मिति",
+    modConvTitle: "परिवर्तन",
+    modConvSub: "ईस्वी र विक्रम सम्वत् दुईतर्फी",
+    settingsTitle: "सेटिङ",
+    langTitle: "भाषा",
+    nepalTitle: "नेपालको मिति",
+    autostartTitle: "सुरुमा चलाउने",
+    autostartSub: "Windows सँगै खोल्ने",
+    hotkeyTitle: "सर्टकट",
+    hotkeyMissing: "उपलब्ध छैन",
+    versionTitle: "संस्करण",
+    back: "फर्कनु",
+    empty: "कुनै मोड्युल सक्रिय छैन।",
+    openModules: "मोड्युल खोल्नु",
+  },
+  en: {
+    headerToday: "Today",
+    tabToday: "Today",
+    tabConvert: "Convert",
+    adLabel: "Gregorian date",
+    year: "Year",
+    month: "Month",
+    day: "Day",
+    copy: "Copy",
+    copied: "Copied",
+    todayBtn: "Today",
+    errInvalid: "That date does not exist.",
+    errRange: "That date is outside the supported range.",
+    projected: "Dates from 2091 on are projected.",
+    modules: "Modules",
+    settings: "Settings",
+    quit: "Quit",
+    modulesTitle: "Modules",
+    modTodayTitle: "Today",
+    modTodaySub: "Today's Bikram Sambat date",
+    modConvTitle: "Converter",
+    modConvSub: "Both directions, BS and AD",
+    settingsTitle: "Settings",
+    langTitle: "Language",
+    nepalTitle: "Nepal date",
+    autostartTitle: "Start with Windows",
+    autostartSub: "Launch when Windows starts",
+    hotkeyTitle: "Shortcut",
+    hotkeyMissing: "unavailable",
+    versionTitle: "Version",
+    back: "Back",
+    empty: "No modules are enabled.",
+    openModules: "Open modules",
+  },
+};
+
+let S = null;
+let lang = "np";
+let screen = "today";
+let converterReady = false;
+let mode = "ad";
+let current = null;
+
+const $ = (id) => document.getElementById(id);
+const copyOf = () => STR[lang];
+
+function iso(date) {
+  return `${String(date.y).padStart(4, "0")}-${String(date.m).padStart(2, "0")}-${String(date.d).padStart(2, "0")}`;
+}
+
+function pad(value) {
+  return String(value).padStart(2, "0");
+}
+
+function daysIn(year, month) {
+  const index = S.bs_years.indexOf(year);
+  if (index < 0) return 30;
+  return S.bs_calendar[index][month - 1];
+}
+
+function yearLabel(year) {
+  const index = S.bs_years.indexOf(year);
+  return index >= 0 ? S.years_np[index] : String(year);
+}
+
+function dayLabel(day) {
+  return S.days_np[day - 1] ?? String(day);
+}
+
+function rebuildYears(selected) {
+  const current = Number($("bs-year").value) || S.today.bs.y;
+  fillSelect(
+    $("bs-year"),
+    S.bs_years.map((year) => ({ value: year, label: yearLabel(year) })),
+    selected ?? current
+  );
+}
+
+function fillSelect(select, items, selected) {  select.replaceChildren();
+  for (const item of items) {
+    const option = document.createElement("option");
+    option.value = String(item.value);
+    option.textContent = item.label;
+    select.append(option);
+  }
+  if (selected !== undefined) select.value = String(selected);
+}
+
+function rebuildMonths(selected) {
+  const values = S.months_np;
+  const current = Number($("bs-month").value) || 1;
+  fillSelect(
+    $("bs-month"),
+    values.map((label, index) => ({ value: index + 1, label })),
+    selected ?? current
+  );
+}
+
+function rebuildDays(selected) {
+  const year = Number($("bs-year").value);
+  const month = Number($("bs-month").value);
+  const count = daysIn(year, month);
+  const keep = selected ?? Number($("bs-day").value) ?? 1;
+  fillSelect(
+    $("bs-day"),
+    Array.from({ length: count }, (_, index) => ({
+      value: index + 1,
+      label: dayLabel(index + 1),
+    })),
+    Math.min(Math.max(keep, 1), count)
+  );
+}
+
+function setBs(y, m, d) {
+  $("bs-year").value = String(y);
+  rebuildMonths(m);
+  rebuildDays(d);
+}
+
+function render() {
+  if (!S) return;
+  lang = S.lang;
+  const s = copyOf();
+  document.documentElement.lang = lang === "np" ? "ne" : "en";
+
+  $("header-label").textContent = s.headerToday;
+  $("header-bs").textContent = S.today.bs_np;
+  $("header-sub").textContent = `${S.today[`weekday_${lang}`]} · ${S.today[`ad_${lang}`]}`;
+
+  $("seg-today").textContent = s.tabToday;
+  $("seg-converter").textContent = s.tabConvert;
+  $("seg-today").hidden = !S.modules.today;
+  $("seg-converter").hidden = !S.modules.converter;
+  $("segmented").hidden = !(S.modules.today && S.modules.converter);
+
+  $("lbl-ad").textContent = s.adLabel;
+  $("lbl-year").textContent = s.year;
+  $("lbl-month").textContent = s.month;
+  $("lbl-day").textContent = s.day;
+  $("copy-today").textContent = s.copy;
+  $("copy-bs").textContent = s.copy;
+  $("copy-ad").textContent = s.copy;
+  $("conv-today").textContent = s.todayBtn;
+
+  $("today-bs").textContent = S.today.bs_np;
+  $("today-sub").textContent = `${S.today[`weekday_${lang}`]} · ${S.today[`ad_${lang}`]}`;
+
+  $("modules-title").textContent = s.modulesTitle;
+  $("mod-today-title").textContent = s.modTodayTitle;
+  $("mod-today-sub").textContent = s.modTodaySub;
+  $("mod-conv-title").textContent = s.modConvTitle;
+  $("mod-conv-sub").textContent = s.modConvSub;
+  $("modules-back").textContent = s.back;
+
+  $("settings-title").textContent = s.settingsTitle;
+  $("set-lang-title").textContent = s.langTitle;
+  $("set-nepal-title").textContent = s.nepalTitle;
+  $("set-autostart-title").textContent = s.autostartTitle;
+  $("set-autostart-sub").textContent = s.autostartSub;
+  $("set-hotkey-title").textContent = s.hotkeyTitle;
+  $("set-hotkey-sub").textContent = S.hotkey_ok
+    ? S.hotkey
+    : `${S.hotkey} — ${s.hotkeyMissing}`;
+  $("set-hotkey-sub").title = S.hotkey_error || "";
+  $("set-version-title").textContent = s.versionTitle;
+  $("set-version").textContent = S.version;
+  $("settings-back").textContent = s.back;
+
+  $("nav-modules").textContent = s.modules;
+  $("nav-settings").textContent = s.settings;
+  $("quit").textContent = s.quit;
+  $("empty-text").textContent = s.empty;
+  $("empty-modules").textContent = s.openModules;
+
+  $("lang-select").value = S.lang;
+  $("set-nepal").checked = S.nepal_date;
+  $("set-autostart").checked = S.autostart;
+  $("mod-today").checked = S.modules.today;
+  $("mod-converter").checked = S.modules.converter;
+  $("ad-input").min = S.ad_min;
+  $("ad-input").max = S.ad_max;
+
+  rebuildYears();
+  rebuildMonths();
+  rebuildDays();
+  show(screen);
+}
+
+function show(next) {
+  if (!S) return;
+  if (next === "today" && !S.modules.today) next = S.modules.converter ? "converter" : "empty";
+  if (next === "converter" && !S.modules.converter) next = S.modules.today ? "today" : "empty";
+  if (next === "empty" && S.modules.today) next = "today";
+  if (next === "empty" && S.modules.converter) next = "converter";
+  screen = next;
+  const scroll = document.getElementById("main");
+  if (scroll) scroll.scrollTop = 0;
+  for (const element of document.querySelectorAll(".screen")) {
+    element.classList.toggle("is-active", element.id === `screen-${next}`);
+  }
+  for (const element of document.querySelectorAll(".seg")) {
+    element.classList.toggle("is-active", element.dataset.screen === next);
+  }
+  if (next === "converter" && !converterReady) initConverter();
+}
+
+function initConverter() {
+  converterReady = true;
+  setBs(S.today.bs.y, S.today.bs.m, S.today.bs.d);
+  $("ad-input").value = iso(S.today.ad);
+  applyResult(S.today);
+}
+
+function applyResult(result) {
+  current = result;
+  $("res-bs").textContent = result.bs_np;
+  $("res-bs-sub").textContent = result[`weekday_${lang}`];
+  $("res-ad").textContent = result[`ad_${lang}`];
+  $("res-ad-sub").textContent = "";
+  $("conv-error").hidden = true;
+  $("projected-note").hidden = !result.projected;
+  $("projected-note").textContent = copyOf().projected;
+  if (mode === "bs") {
+    $("ad-input").value = iso(result.ad);
+  } else {
+    setBs(result.bs.y, result.bs.m, result.bs.d);
+  }
+}
+
+function showError(code) {
+  const s = copyOf();
+  const message =
+    code === "out_of_range"
+      ? `${s.errRange} ${S.ad_min} – ${S.ad_max}`
+      : s.errInvalid;
+  current = null;
+  $("res-bs").textContent = "—";
+  $("res-bs-sub").textContent = "";
+  $("res-ad").textContent = "—";
+  $("res-ad-sub").textContent = "";
+  $("conv-error").textContent = message;
+  $("conv-error").hidden = false;
+  $("conv-error").scrollIntoView({ block: "nearest" });
+}
+
+async function convertFromAd() {
+  const value = $("ad-input").value;
+  if (!value) return;
+  const [y, m, d] = value.split("-").map(Number);
+  mode = "ad";
+  try {
+    applyResult(await invoke("convert_ad", { y, m, d }));
+  } catch (error) {
+    showError(String(error));
+  }
+}
+
+async function convertFromBs() {
+  const y = Number($("bs-year").value);
+  const m = Number($("bs-month").value);
+  const d = Number($("bs-day").value);
+  mode = "bs";
+  try {
+    applyResult(await invoke("convert_bs", { y, m, d }));
+  } catch (error) {
+    showError(String(error));
+  }
+}
+
+async function copyText(text, button) {
+  if (!text) return;
+  try {
+    await invoke("copy_text", { text });
+    button.textContent = copyOf().copied;
+    window.setTimeout(() => {
+      button.textContent = copyOf().copy;
+    }, 1200);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function refresh() {
+  try {
+    S = await invoke("get_state");
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+  render();
+}
+
+function wire() {
+  $("seg-today").addEventListener("click", () => show("today"));
+  $("seg-converter").addEventListener("click", () => show("converter"));
+  $("nav-modules").addEventListener("click", () => show("modules"));
+  $("nav-settings").addEventListener("click", () => show("settings"));
+  $("empty-modules").addEventListener("click", () => show("modules"));
+  $("modules-back").addEventListener("click", () => show(S.modules.today ? "today" : "converter"));
+  $("settings-back").addEventListener("click", () => show(S.modules.today ? "today" : "converter"));
+  $("quit").addEventListener("click", () => invoke("quit_app"));
+
+  $("copy-today").addEventListener("click", () =>
+    copyText(S.today.bs_np, $("copy-today"))
+  );
+  $("copy-bs").addEventListener("click", () =>
+    copyText(current ? current.bs_np : "", $("copy-bs"))
+  );
+  $("copy-ad").addEventListener("click", () =>
+    copyText(current ? current[`ad_${lang}`] : "", $("copy-ad"))
+  );
+
+  $("ad-input").addEventListener("change", convertFromAd);
+  $("bs-year").addEventListener("change", () => {
+    rebuildDays();
+    convertFromBs();
+  });
+  $("bs-month").addEventListener("change", () => {
+    rebuildDays();
+    convertFromBs();
+  });
+  $("bs-day").addEventListener("change", convertFromBs);
+  $("conv-today").addEventListener("click", () => {
+    mode = "ad";
+    setBs(S.today.bs.y, S.today.bs.m, S.today.bs.d);
+    $("ad-input").value = iso(S.today.ad);
+    applyResult(S.today);
+  });
+
+  $("lang-select").addEventListener("change", async (event) => {
+    S = await invoke("set_language", { lang: event.target.value });
+    render();
+  });
+  $("set-nepal").addEventListener("change", async (event) => {
+    S = await invoke("set_nepal_date", { enabled: event.target.checked });
+    render();
+  });
+  $("set-autostart").addEventListener("change", async (event) => {
+    try {
+      S = await invoke("set_autostart", { enabled: event.target.checked });
+      render();
+    } catch (error) {
+      console.error(error);
+      event.target.checked = !event.target.checked;
+    }
+  });
+  $("mod-today").addEventListener("change", async (event) => {
+    S = await invoke("set_module", { module: "today", enabled: event.target.checked });
+    render();
+  });
+  $("mod-converter").addEventListener("change", async (event) => {
+    S = await invoke("set_module", { module: "converter", enabled: event.target.checked });
+    render();
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") invoke("hide_panel");
+  });
+  document.addEventListener("contextmenu", (event) => event.preventDefault());
+}
+
+async function start() {
+  if (!invoke) {
+    document.body.textContent = "Tauri bridge unavailable";
+    return;
+  }
+  wire();
+  await refresh();
+  if (listen) {
+    await listen("panel-opened", refresh);
+    await listen("day-changed", refresh);
+    await listen("navigate", (event) => {
+      show(event.payload);
+    });
+  }
+}
+
+start();

@@ -1,0 +1,58 @@
+name: Bug report
+description: Something is wrong with the app, the date data, or the build
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Do not paste secrets, tokens or personal data.
+        Security problems go through SECURITY.md, not this form.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Settings, then Version, or the commit you built from.
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version and scaling
+      placeholder: Windows 11 23H2 (22631.4169), 125% scaling
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the panel with Ctrl+Alt+N
+        2. Choose Convert
+        3. ...
+  - type: textarea
+    id: log
+    attributes:
+      label: Log (optional)
+      description: Last lines of %APPDATA%\com.aaxyat.nepalitoolkit\app.log, with personal data removed.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues first.
+          required: true
