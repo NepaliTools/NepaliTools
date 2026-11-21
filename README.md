@@ -8,13 +8,14 @@
 ![Rust](https://img.shields.io/badge/rust-1.100%2B-orange)
 ![Tauri](https://img.shields.io/badge/Tauri-2-24C8DB)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Offline](https://img.shields.io/badge/network-none-success)
+![Network](https://img.shields.io/badge/network-update%20check%20only-blue)
 ![Release](https://img.shields.io/github/v/release/NepaliTools/NepaliTools?include_prereleases&label=alpha&color=dc143c)
 
 NepaliToolkit keeps today's Nepali date in the Windows notification area and
 converts dates between Bikram Sambat (BS) and the Gregorian calendar in both
 directions. It is built in Rust with Tauri 2 and the system webview, and it runs
-offline. It does not use Electron or Node, and it does not bundle a browser.
+offline. The only network request is the update check you start yourself. It does
+not use Electron or Node, and it does not bundle a browser.
 
 <p align="center">
   <img src="docs/evidence/panel-today-en.png" width="300" alt="NepaliToolkit tray panel showing today's Nepali date मंसिर ५, २०८३ with an English interface">
@@ -35,21 +36,22 @@ The app ships two modules:
 
 The Modules page turns either module off. Settings holds the interface language
 (English by default, Nepali available), a switch that uses Nepal time
-(UTC+05:45) instead of the machine's date, and the autostart toggle.
+(UTC+05:45) instead of the machine's date, the autostart toggle and a Check for
+updates button.
 
 The Nepali date always renders in Nepali, with Devanagari digits and Nepali month
 names, in both interface languages. The weekday and the Gregorian date follow the
 interface language.
 
 The app starts with Windows by default, runs as a single instance, and stores no
-telemetry.
+telemetry. It checks for updates only when you press the button in Settings.
 
 ## Screenshots
 
 <p align="center">
   <img src="docs/evidence/panel-converter-en.png" width="250" alt="BS to AD and AD to BS converter with a Devanagari Bikram Sambat date">
   <img src="docs/evidence/panel-modules-off.png" width="250" alt="Modules page enabling and disabling tray tools">
-  <img src="docs/evidence/panel-settings-en.png" width="250" alt="Settings page with language, Nepal date override and start with Windows">
+  <img src="docs/evidence/panel-settings-en.png" width="250" alt="Settings page with language, Nepal date override, start with Windows and Check for updates">
 </p>
 
 <p align="center"><em>Convert, Modules and Settings. The tray tooltip shows the full date, for example मंसिर ५, २०८३ - Saturday.</em></p>
@@ -68,15 +70,15 @@ have no published gazette yet, and the interface marks them as projected.
 
 ## Install
 
-The 0.1.0 alpha ships as a per-user installer and a portable zip for Windows 10
+The 0.1.2 alpha ships as a per-user installer and a portable zip for Windows 10
 and 11, 64-bit.
 
-- [Installer](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.0-alpha/NepaliToolkit-0.1.0-alpha-win64-setup.exe)
+- [Installer](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.2-alpha/NepaliToolkit-0.1.2-alpha-win64-setup.exe)
   installs for the current user, adds a Start Menu shortcut and an uninstaller,
   and needs no administrator.
-- [Portable zip](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.0-alpha/NepaliToolkit-0.1.0-alpha-win64-portable.zip)
+- [Portable zip](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.2-alpha/NepaliToolkit-0.1.2-alpha-win64-portable.zip)
   extracts and runs from any folder.
-- [Release notes and checksums](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.0-alpha)
+- [Release notes and checksums](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.2-alpha)
   cover both.
 - The build is unsigned, so Windows may show "Windows protected your PC". Choose
   More info, then Run anyway.
@@ -86,7 +88,12 @@ need the
 [Evergreen runtime](https://developer.microsoft.com/microsoft-edge/webview2/).
 The installer embeds the bootstrapper.
 
-This is an alpha. There is no update mechanism yet.
+0.1.2 adds the update check. Open Settings and press Check for updates: the app
+reads a signed manifest from nepalitools.pages.dev, downloads the signed installer
+from GitHub Releases if a newer alpha exists, installs it quietly and restarts.
+There is no background check. The 0.1.0 alpha cannot update itself, so install
+0.1.2 once; from then on the button handles new alphas. The portable build tells
+you to download the new zip instead of replacing itself.
 
 The app starts in the notification area. Windows 11 usually places new tray icons
 in the hidden-icons overflow behind `^`. Drag the icon onto the taskbar to pin it.
@@ -125,7 +132,7 @@ The test suite converts every day in both directions, 46,022 days each way. It
 checks monotonicity and external anchors, and it fails if a source disagreement
 is not recorded in the overrides file.
 
-To refresh the snapshot, which is the only step that uses the network:
+To refresh the snapshot, the data side's only network step:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools\fetch-bs-data.ps1
@@ -133,9 +140,11 @@ powershell -ExecutionPolicy Bypass -File tools\fetch-bs-data.ps1
 
 ## Privacy
 
-The app makes no network requests at runtime and collects no telemetry. Settings
-live in `%APPDATA%\com.aaxyat.nepalitoolkit\settings.json`. A diagnostic log sits
-next to it and never leaves the machine.
+The app collects no telemetry. It makes no network request until you press Check
+for updates in Settings; that request fetches a version manifest and, if you
+choose to install, the signed installer from GitHub Releases. Nothing about you is
+sent. Settings live in `%APPDATA%\com.aaxyat.nepalitoolkit\settings.json`. A
+diagnostic log sits next to it and never leaves the machine.
 
 ## FAQ
 
@@ -146,7 +155,15 @@ and the tooltip carries the full date.
 
 ### Can it convert BS to AD and AD to BS without internet?
 
-Yes. Both directions use the bundled table, and the app makes no network calls.
+Yes. Both directions use the bundled table. Conversion makes no network calls.
+
+### How do updates work?
+
+Open Settings and press Check for updates. The app fetches a signed release
+manifest, and if a newer alpha exists it downloads the signed installer, verifies
+the signature and installs it quietly. The app restarts when the install finishes.
+There is no background check and no automatic download. The portable build points
+you at the release page instead, because it cannot replace itself.
 
 ### Which years are supported?
 
@@ -189,7 +206,7 @@ More reading: [GLOSSARY](GLOSSARY.md), [ACCEPTANCE](ACCEPTANCE.md),
 
 ## Status
 
-0.1.0 alpha. Windows only, unsigned, and used daily by its author. The project is
+0.1.2 alpha. Windows only, unsigned, and used daily by its author. The project is
 not affiliated with the Government of Nepal or any calendar authority.
 
 ## License

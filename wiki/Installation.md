@@ -11,8 +11,8 @@
 
 ## Get the app
 
-Download the 0.1.0 alpha from the
-[release page](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.0-alpha).
+Download the 0.1.2 alpha from the
+[release page](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.2-alpha).
 
 - **Installer:** download the setup exe and run it. It installs for the current
   user, adds a Start Menu shortcut and an uninstaller, and needs no administrator.
@@ -21,7 +21,23 @@ Download the 0.1.0 alpha from the
 
 Both need WebView2. The installer embeds the bootstrapper. The build is unsigned,
 so Windows SmartScreen may show "Windows protected your PC"; choose More info,
-then Run anyway. There is no update mechanism yet.
+then Run anyway.
+
+The 0.1.0 alpha had no updater. Install 0.1.2 once; from then on Settings has
+Check for updates. The check is manual, the installer is signed, and it runs
+quietly and restarts the app. The portable build asks you to download the new zip
+instead.
+
+## Update
+
+1. Open Settings.
+2. Under Updates, press Check.
+3. If a newer alpha exists, press Install and restart. The app downloads the
+   signed installer, verifies it, installs it without opening an installer window,
+   and starts the new version.
+
+There is no background check and no automatic download. The only network request
+is this one.
 
 ## Build from source
 

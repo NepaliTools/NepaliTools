@@ -36,6 +36,19 @@ const STR = {
     back: "फर्कनु",
     empty: "कुनै मोड्युल सक्रिय छैन।",
     openModules: "मोड्युल खोल्नु",
+    updateTitle: "अपडेट",
+    updateSub: "GitHub Releases बाट, थिचेपछि मात्र जाँचिन्छ।",
+    updateCheck: "जाँच्नु",
+    updateChecking: "जाँच हुँदै...",
+    updateCurrent: "हालको संस्करण",
+    updateLatest: "तपाईंसँग नयाँ संस्करण छ।",
+    updateAvailable: "नयाँ संस्करण उपलब्ध छ",
+    updateInstall: "स्थापना गर्नु",
+    updateInstalling: "स्थापना हुँदै...",
+    updateDownloading: "डाउनलोड हुँदै...",
+    updateFailed: "जाँच्न सकिएन। इन्टरनेट जाँच्नुहोस्।",
+    updatePortable: "पोर्टेबल संस्करण। नयाँ जिप रिलिज पृष्ठबाट लिनुहोस्।",
+    portable: "पोर्टेबल",
   },
   en: {
     headerToday: "Today",
@@ -70,6 +83,19 @@ const STR = {
     back: "Back",
     empty: "No modules are enabled.",
     openModules: "Open modules",
+    updateTitle: "Updates",
+    updateSub: "Checks GitHub Releases only when you press the button.",
+    updateCheck: "Check",
+    updateChecking: "Checking...",
+    updateCurrent: "Current version",
+    updateLatest: "You are on the latest alpha.",
+    updateAvailable: "Update available",
+    updateInstall: "Install and restart",
+    updateInstalling: "Installing...",
+    updateDownloading: "Downloading...",
+    updateFailed: "Could not check. You may be offline.",
+    updatePortable: "Portable build. Download the new zip from the release page.",
+    portable: "portable",
   },
 };
 
@@ -79,6 +105,10 @@ let screen = "today";
 let converterReady = false;
 let mode = "ad";
 let current = null;
+let updateStatus = "idle";
+let update = null;
+let updateDownloaded = 0;
+let updateTotal = 0;
 
 const $ = (id) => document.getElementById(id);
 const copyOf = () => STR[lang];
@@ -222,7 +252,70 @@ function render() {
   rebuildYears();
   rebuildMonths();
   rebuildDays();
+  renderUpdates();
   show(screen);
+}
+
+function renderUpdates() {
+  if (!S) return;
+  const s = copyOf();
+  $("update-title").textContent = s.updateTitle;
+  $("update-current").textContent = `${s.updateCurrent} ${S.version}${S.portable ? ` · ${s.portable}` : ""}`;
+  $("update-check").textContent = updateStatus === "checking" ? s.updateChecking : s.updateCheck;
+  $("update-check").disabled = updateStatus === "checking" || updateStatus === "installing";
+  const available = updateStatus === "available" && update;
+  $("update-available").hidden = !available;
+  if (available) {
+    $("update-available-title").textContent = `${s.updateAvailable} · ${update.version}`;
+    $("update-notes").textContent = update.notes || "";
+    $("update-install").hidden = S.portable;
+    $("update-install").textContent = s.updateInstall;
+  }
+  const progress = $("update-progress");
+  progress.hidden = updateStatus !== "installing";
+  progress.value = updateTotal ? Math.min(100, Math.round((updateDownloaded / updateTotal) * 100)) : 0;
+  const messages = {
+    idle: s.updateSub,
+    checking: s.updateChecking,
+    current: s.updateLatest,
+    available: s.updateAvailable,
+    failed: s.updateFailed,
+    installing: updateTotal ? `${s.updateDownloading} ${progress.value}%` : s.updateInstalling,
+  };
+  $("update-status").textContent =
+    updateStatus === "available" && S.portable ? s.updatePortable : messages[updateStatus] || "";
+}
+
+async function checkForUpdate() {
+  if (updateStatus === "checking" || updateStatus === "installing") return;
+  updateStatus = "checking";
+  update = null;
+  updateDownloaded = 0;
+  updateTotal = 0;
+  renderUpdates();
+  try {
+    update = await invoke("check_update");
+    updateStatus = update ? "available" : "current";
+  } catch (error) {
+    console.error(error);
+    updateStatus = "failed";
+  }
+  renderUpdates();
+}
+
+async function installUpdate() {
+  if (updateStatus !== "available" || S.portable) return;
+  updateStatus = "installing";
+  updateDownloaded = 0;
+  updateTotal = 0;
+  renderUpdates();
+  try {
+    await invoke("install_update");
+  } catch (error) {
+    console.error(error);
+    updateStatus = "failed";
+    renderUpdates();
+  }
 }
 
 function show(next) {
@@ -334,6 +427,8 @@ function wire() {
   $("seg-converter").addEventListener("click", () => show("converter"));
   $("nav-modules").addEventListener("click", () => show("modules"));
   $("nav-settings").addEventListener("click", () => show("settings"));
+  $("update-check").addEventListener("click", checkForUpdate);
+  $("update-install").addEventListener("click", installUpdate);
   $("empty-modules").addEventListener("click", () => show("modules"));
   $("modules-back").addEventListener("click", () => show(S.modules.today ? "today" : "converter"));
   $("settings-back").addEventListener("click", () => show(S.modules.today ? "today" : "converter"));
@@ -408,6 +503,12 @@ async function start() {
   if (listen) {
     await listen("panel-opened", refresh);
     await listen("day-changed", refresh);
+    await listen("update-progress", (event) => {
+      const { downloaded, total } = event.payload;
+      updateDownloaded = downloaded;
+      updateTotal = total || 0;
+      if (updateStatus === "installing") renderUpdates();
+    });
     await listen("navigate", (event) => {
       show(event.payload);
     });

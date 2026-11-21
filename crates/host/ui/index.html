@@ -128,6 +128,22 @@
             <div class="row-title" id="set-version-title">संस्करण</div>
             <div class="row-sub" id="set-version"></div>
           </div>
+          <div class="updates">
+            <div class="row update-row">
+              <div>
+                <div class="row-title" id="update-title">अपडेट</div>
+                <div class="row-sub" id="update-current"></div>
+              </div>
+              <button class="copy" id="update-check">जाँच्नु</button>
+            </div>
+            <p class="row-sub update-status" id="update-status"></p>
+            <div class="update-available" id="update-available" hidden>
+              <div class="row-title" id="update-available-title"></div>
+              <p class="update-notes" id="update-notes"></p>
+              <button class="copy wide" id="update-install">स्थापना गर्नु</button>
+            </div>
+            <progress class="update-progress" id="update-progress" max="100" value="0" hidden></progress>
+          </div>
           <button class="ghost" data-back id="settings-back">फर्कनु</button>
         </section>
       </main>

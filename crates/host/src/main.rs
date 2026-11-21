@@ -20,6 +20,7 @@ use tauri::{
 use tauri_plugin_autostart::ManagerExt as AutostartExt;
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
+use tauri_plugin_updater::UpdaterExt;
 
 const TRAY_ID: &str = "main";
 const PANEL: &str = "panel";
@@ -257,6 +258,21 @@ struct UiState {
     ad_min: String,
     ad_max: String,
     version: String,
+    portable: bool,
+}
+
+/// The installed build lives in `%LOCALAPPDATA%\NepaliToolkit`; anything else is
+/// the portable exe, which cannot replace itself with the NSIS installer.
+fn is_portable() -> bool {
+    let Ok(exe) = std::env::current_exe() else { return true };
+    let exe = exe.canonicalize().unwrap_or(exe);
+    let installed = std::env::var_os("LOCALAPPDATA")
+        .map(|dir| PathBuf::from(dir).join("NepaliToolkit").join("NepaliToolkit.exe"))
+        .and_then(|path| path.canonicalize().ok());
+    match installed {
+        Some(path) => exe != path,
+        None => true,
+    }
 }
 
 fn iso(ad: AdDate) -> String {
@@ -299,6 +315,7 @@ fn build_state(app: &AppHandle, state: &AppState) -> Result<UiState, String> {
         ad_min: iso(first),
         ad_max: iso(last),
         version: app.package_info().version.to_string(),
+        portable: is_portable(),
     })
 }
 
@@ -563,6 +580,87 @@ fn quit_app(app: AppHandle) {
     app.exit(0);
 }
 
+// ---------------------------------------------------------------- updates
+
+#[derive(Serialize, Clone)]
+struct UpdateInfo {
+    version: String,
+    notes: String,
+    date: Option<String>,
+}
+
+#[derive(Serialize, Clone)]
+struct UpdateProgress {
+    downloaded: usize,
+    total: Option<u64>,
+}
+
+/// Called only when the user presses Check for updates in Settings. The app
+/// makes no other network requests and never checks on a timer or at startup.
+#[tauri::command]
+async fn check_update(app: AppHandle) -> Result<Option<UpdateInfo>, String> {
+    log("update: checking");
+    let updater = app.updater().map_err(|error| error.to_string())?;
+    let update = updater
+        .check()
+        .await
+        .map_err(|error| {
+            log(&format!("update: check failed: {error}"));
+            error.to_string()
+        })?;
+    match update {
+        Some(update) => {
+            log(&format!("update: {} available", update.version));
+            Ok(Some(UpdateInfo {
+                version: update.version,
+                notes: update.body.unwrap_or_default(),
+                date: update.date.map(|date| date.to_string()),
+            }))
+        }
+        None => {
+            log("update: up to date");
+            Ok(None)
+        }
+    }
+}
+
+/// Downloads the signed installer and hands it to the NSIS updater in quiet
+/// mode (`/S /R`): no installer window, and the new build is started again.
+#[tauri::command]
+async fn install_update(app: AppHandle) -> Result<(), String> {
+    let updater = app.updater().map_err(|error| error.to_string())?;
+    let Some(update) = updater
+        .check()
+        .await
+        .map_err(|error| error.to_string())?
+    else {
+        return Err("no update".into());
+    };
+    log(&format!("update: installing {}", update.version));
+    let handle = app.clone();
+    let mut downloaded = 0usize;
+    update
+        .download_and_install(
+            move |chunk, total| {
+                downloaded += chunk;
+                let _ = handle.emit(
+                    "update-progress",
+                    UpdateProgress {
+                        downloaded,
+                        total,
+                    },
+                );
+            },
+            || {},
+        )
+        .await
+        .map_err(|error| {
+            log(&format!("update: install failed: {error}"));
+            error.to_string()
+        })?;
+    Ok(())
+}
+
 // ---------------------------------------------------------------- main
 
 fn main() {
@@ -576,6 +674,7 @@ fn main() {
             None,
         ))
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 .with_handler(|app, shortcut, event| {
@@ -710,7 +809,9 @@ fn main() {
             convert_bs,
             copy_text,
             hide_panel,
-            quit_app
+            quit_app,
+            check_update,
+            install_update
         ])
         .run(tauri::generate_context!())
         .expect("NepaliToolkit failed to start");

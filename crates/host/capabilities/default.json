@@ -3,5 +3,5 @@
   "identifier": "default",
   "description": "Panel window capabilities",
   "windows": ["panel"],
-  "permissions": ["core:default"]
+  "permissions": ["core:default", "updater:default"]
 }

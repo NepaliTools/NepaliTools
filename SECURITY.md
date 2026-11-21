@@ -24,9 +24,15 @@ Include:
 
 ## Scope
 
-- The application, its build scripts (`tools/`), and the committed date data.
-- The app is designed to make no network requests at runtime and stores no
-  telemetry. Anything that changes that is in scope.
+- The application, its build scripts (`tools/`), the committed date data, and the
+  update manifest and signing setup.
+- The app makes one network request, and only when the user presses Check for
+  updates in Settings: it fetches the signed release manifest and, if the user
+  installs, the signed installer. It collects no telemetry. Anything that changes
+  that is in scope.
+- The updater verifies the installer against the public key in
+  `crates/host/tauri.conf.json`. A forged manifest without the matching private key
+  is a vulnerability; report it.
 - Vulnerabilities in upstream dependencies should be reported upstream as well.
 
 ## What to expect

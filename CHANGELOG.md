@@ -3,7 +3,26 @@
 All notable changes are recorded here. The format follows Keep a Changelog, and
 the project uses Semantic Versioning.
 
-## [Unreleased]
+## [0.1.2] - 2026-11-21
+
+The first build with updates.
+
+### Added
+
+- Updates section in Settings. Check for updates reads a signed release manifest,
+  downloads the signed NSIS installer from GitHub Releases, verifies the signature,
+  installs quietly and restarts the app. Nothing checks on a timer or at startup.
+- `updates/latest.json` on nepalitools.pages.dev, the updater public key in
+  `tauri.conf.json`, and updater signatures on every release build.
+- `tools/release.ps1` and `docs/RELEASING.md` for signed releases.
+- The portable build points at the release page instead of trying to replace
+  itself.
+
+### Changed
+
+- The only network request at runtime is the update check the user starts.
+  README, SECURITY, the site and the wiki say so.
+- The installer description no longer claims there is no network.
 
 ## [0.1.0] - 2026-11-21
 

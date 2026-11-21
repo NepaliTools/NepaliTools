@@ -9,6 +9,8 @@ This is intent, not a promise. The order can change as people use it.
 - Modules page, Settings, autostart, single instance and `Ctrl+Alt+N`.
 - English interface by default, with the Nepali date rendered in Nepali.
 - Alpha installer and portable zip.
+- Manual update check in Settings: signed installer, quiet install and restart.
+  Nothing runs in the background.
 
 ## Next, 0.2
 
@@ -27,5 +29,6 @@ This is intent, not a promise. The order can change as people use it.
 
 ## Out of scope
 
-- Auto-update, telemetry, accounts and cloud sync.
-- Anything that needs the network at runtime.
+- Background auto-update, telemetry, accounts and cloud sync.
+- Anything that needs the network at runtime beyond the update check you start in
+  Settings.
