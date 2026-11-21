@@ -1,6 +1,6 @@
 # Roadmap
 
-This is intent, not a promise. The order can change with what real use reveals.
+This is intent, not a promise. The order can change as people use it.
 
 ## Now, 0.1
 
@@ -8,6 +8,7 @@ This is intent, not a promise. The order can change with what real use reveals.
 - Offline Bikram Sambat data from 1975 to 2100, with cited overrides.
 - Modules page, Settings, autostart, single instance and `Ctrl+Alt+N`.
 - English interface by default, with the Nepali date rendered in Nepali.
+- Alpha installer and portable zip.
 
 ## Next, 0.2
 
@@ -22,7 +23,7 @@ This is intent, not a promise. The order can change with what real use reveals.
 - Nepali numbers: Devanagari numerals, lakh and crore formatting, number words.
 - Holidays and tithi, but only with a cited, dated dataset and a clear split
   between published and projected years.
-- Installer and code signing, if people beyond the author start using it.
+- Code signing and notarization, if people beyond the author start using it.
 
 ## Out of scope
 

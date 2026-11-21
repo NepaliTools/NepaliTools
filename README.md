@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/brand/nepalitools-mark-512.png" width="96" height="96" alt="NepaliTools logo: a calligraphic ने in cream and crimson on deep indigo">
+</p>
+
 # NepaliToolkit, a Nepali date and Bikram Sambat tray app for Windows
 
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D4)
@@ -5,6 +9,7 @@
 ![Tauri](https://img.shields.io/badge/Tauri-2-24C8DB)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Offline](https://img.shields.io/badge/network-none-success)
+![Release](https://img.shields.io/github/v/release/NepaliTools/NepaliTools?include_prereleases&label=alpha&color=dc143c)
 
 NepaliToolkit keeps today's Nepali date in the Windows notification area and
 converts dates between Bikram Sambat (BS) and the Gregorian calendar in both
@@ -63,26 +68,35 @@ have no published gazette yet, and the interface marks them as projected.
 
 ## Install
 
-There is no installer and no binary release yet. The app is unsigned and ships as
-a single portable executable.
+The 0.1.0 alpha ships as a per-user installer and a portable zip for Windows 10
+and 11, 64-bit.
 
-Requirements are Windows 10 or 11 and the WebView2 runtime. WebView2 is
-preinstalled on Windows 11; older Windows 10 machines need the
+- [Installer](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.0-alpha/NepaliToolkit-0.1.0-alpha-win64-setup.exe)
+  installs for the current user, adds a Start Menu shortcut and an uninstaller,
+  and needs no administrator.
+- [Portable zip](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.0-alpha/NepaliToolkit-0.1.0-alpha-win64-portable.zip)
+  extracts and runs from any folder.
+- [Release notes and checksums](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.0-alpha)
+  cover both.
+- The build is unsigned, so Windows may show "Windows protected your PC". Choose
+  More info, then Run anyway.
+
+Both need the WebView2 runtime. Windows 11 includes it; some Windows 10 machines
+need the
 [Evergreen runtime](https://developer.microsoft.com/microsoft-edge/webview2/).
+The installer embeds the bootstrapper.
 
-```powershell
-git clone https://github.com/NepaliTools/NepaliTools.git
-cd NepaliTools
-cargo build --release -p nepalitoolkit
-Copy-Item target\release\nepalitoolkit.exe dist\NepaliToolkit.exe
-```
+This is an alpha. There is no update mechanism yet.
 
-Run `dist\NepaliToolkit.exe`. Windows 11 usually places new tray icons in the
-hidden-icons overflow behind `^`. Drag the icon onto the taskbar to pin it.
+The app starts in the notification area. Windows 11 usually places new tray icons
+in the hidden-icons overflow behind `^`. Drag the icon onto the taskbar to pin it.
 Autostart is on by default and can be turned off in Settings.
 
-To remove the app, turn autostart off in Settings, quit from the panel or the
-tray menu, then delete the executable and `%APPDATA%\com.aaxyat.nepalitoolkit\`.
+To remove the installed copy, open Settings, Apps, Installed apps, find
+NepaliToolkit and choose Uninstall, or run
+`%LOCALAPPDATA%\NepaliToolkit\uninstall.exe`. For the portable copy, turn
+autostart off, quit, then delete the folder. Settings and the log live in
+`%APPDATA%\com.aaxyat.nepalitoolkit\`.
 
 ## Build from source
 
@@ -90,6 +104,8 @@ You need Rust with the MSVC toolchain
 (`rustup default stable-x86_64-pc-windows-msvc`). No Node.js or npm is involved.
 
 ```powershell
+git clone https://github.com/NepaliTools/NepaliTools.git
+cd NepaliTools
 cargo test --workspace
 cargo build --release -p nepalitoolkit
 ```
@@ -168,13 +184,13 @@ wiki/              wiki source pages
 ```
 
 More reading: [GLOSSARY](GLOSSARY.md), [ACCEPTANCE](ACCEPTANCE.md),
-[architecture decisions](docs/adr/), [changelog](CHANGELOG.md),
-[contributing](CONTRIBUTING.md).
+[architecture decisions](docs/adr/), [brand](assets/brand/BRAND.md),
+[changelog](CHANGELOG.md), [contributing](CONTRIBUTING.md).
 
 ## Status
 
-V1, Windows only, unsigned, used daily by its author. The project is not
-affiliated with the Government of Nepal or any calendar authority.
+0.1.0 alpha. Windows only, unsigned, and used daily by its author. The project is
+not affiliated with the Government of Nepal or any calendar authority.
 
 ## License
 

@@ -2,15 +2,28 @@
 
 ## Requirements
 
-- Windows 10 or Windows 11.
+- Windows 10 or Windows 11, 64-bit.
 - The WebView2 runtime. It ships with Windows 11. On older Windows 10 machines,
   install the
   [Evergreen runtime](https://developer.microsoft.com/microsoft-edge/webview2/).
+- Rust with the MSVC toolchain, only if you build from source.
 - No Node.js, no npm, no separate runtime.
 
 ## Get the app
 
-There is no installer and no binary release yet. Build the portable executable:
+Download the 0.1.0 alpha from the
+[release page](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.0-alpha).
+
+- **Installer:** download the setup exe and run it. It installs for the current
+  user, adds a Start Menu shortcut and an uninstaller, and needs no administrator.
+- **Portable zip:** download, extract, and run `NepaliToolkit.exe`. It runs from
+  any folder.
+
+Both need WebView2. The installer embeds the bootstrapper. The build is unsigned,
+so Windows SmartScreen may show "Windows protected your PC"; choose More info,
+then Run anyway. There is no update mechanism yet.
+
+## Build from source
 
 ```powershell
 git clone https://github.com/NepaliTools/NepaliTools.git
@@ -20,9 +33,6 @@ Copy-Item target\release\nepalitoolkit.exe dist\NepaliToolkit.exe
 ```
 
 Run `dist\NepaliToolkit.exe`. It is a single file, so you can move it anywhere.
-
-Because the build is unsigned, Windows SmartScreen may show "unknown publisher"
-the first time. Choose More info, then Run anyway.
 
 ## First run
 
@@ -47,8 +57,10 @@ The icon shows the BS day in Devanagari digits. Hovering it shows
 
 1. Open Settings and turn off Start with Windows first.
 2. Quit from the panel footer or the tray menu.
-3. Delete the executable.
-4. Optionally delete `%APPDATA%\com.aaxyat.nepalitoolkit\`.
+3. Installed copy: open Settings, Apps, Installed apps, find NepaliToolkit and
+   choose Uninstall, or run `%LOCALAPPDATA%\NepaliToolkit\uninstall.exe`.
+4. Portable copy: delete `NepaliToolkit.exe` from the folder you extracted.
+5. Optionally delete `%APPDATA%\com.aaxyat.nepalitoolkit\`.
 
 Removing the app while autostart is still on leaves a Run entry pointing at a
 missing file. Turning autostart off first avoids that.

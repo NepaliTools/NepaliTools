@@ -7,10 +7,12 @@ the project uses Semantic Versioning.
 
 ## [0.1.0] - 2026-11-21
 
-Initial public release.
+Initial public alpha.
 
 ### Added
 
+- Branded per-user NSIS installer and a portable zip, published as the 0.1.0
+  alpha release.
 - Tray host in Rust with Tauri 2 and a plain HTML/CSS/JS panel. No Node, npm or
   bundled browser.
 - `npt-core`, a dependency-free Bikram Sambat engine: BS to AD conversion,
