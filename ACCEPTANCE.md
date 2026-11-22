@@ -66,6 +66,7 @@ plus `cargo build --release -p nepalitoolkit` for the portable executable.
 | 35 | Panel focus guard | open the panel, press the chord | PASS. Log reads `text: skipped, panel has focus`; the clipboard is untouched and the panel explains why. No keystrokes enter the webview. | `docs/evidence/panel-text-shortcut-guard.png` |
 | 36 | Shortcut modes | switch Auto and Split in the Text tab, then press each chord | PASS. Split registers Ctrl+Alt+P and Ctrl+Alt+U and logs `mode=split`; auto unregisters U and logs `mode=auto`. The choice persists in `settings.json`. | log lines; `settings.json` |
 | 37 | Text module toggle | turn Text off on the Modules page | PASS. The Text tab disappears, the segmented bar stays for the other modules, and the setting persists. | `settings.json`; screenshot |
+| 38 | Settings survive an upgrade | start 0.1.5 against a 0.1.3 settings file that has no `text` flag or `shortcut_mode` | PASS. Language (np), channel (beta), Nepal date, autostart off and converter off all survived; the new module defaulted on and the mode to auto. | state read from the running app |
 
 ## How the midnight check was run
 

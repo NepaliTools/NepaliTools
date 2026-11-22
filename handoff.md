@@ -12,7 +12,8 @@ plain HTML and CSS panel.
 
 | Version | Channel | Date | Notes |
 |---|---|---|---|
-| 0.1.4 | alpha | 2026-11-22 | Text module, in-place shortcut, channel dropdown fix. Current. |
+| 0.1.5 | alpha | 2026-11-22 | Text module, in-place shortcut, and the settings migration fix. Current. |
+| 0.1.4 | alpha | 2026-11-22 | Text module; reset settings saved by 0.1.3. Superseded. |
 | 0.1.3 | alpha | 2026-11-22 | Update channels: Stable, Beta, Alpha. |
 | 0.1.2 | alpha | 2026-11-21 | Manual update check, signed installer, quiet install. |
 | 0.1.0 | alpha | 2026-11-21 | First public alpha. No updater. |
@@ -75,7 +76,7 @@ password), `gh` with `repo` scope, and the site checkout at `..\nepalitools-site
    default branch tip, not the working tree; if the tag lands on the previous
    commit, move it with
    `gh api --method PATCH repos/NepaliTools/NepaliTools/git/refs/tags/<tag> -f sha=<sha> -F force=true`.
-6. Run `tools\release.ps1 -Version 0.1.5 -Channel alpha`. It builds, signs,
+6. Run `tools\release.ps1 -Version 0.1.6 -Channel alpha`. It builds, signs,
    writes the manifest and checksums, creates the release, and deploys the site.
 
 The updater key is the trust root. Losing it means existing installs cannot

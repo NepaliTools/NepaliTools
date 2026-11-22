@@ -1,8 +1,8 @@
-# NepaliToolkit 0.1.4 alpha
+# NepaliToolkit 0.1.5 alpha
 
 Preeti and Unicode, in the panel and in any app.
 
-![The Text module converting Preeti to Unicode](https://raw.githubusercontent.com/NepaliTools/NepaliToolkit/v0.1.4-alpha/docs/evidence/panel-text-unicode.png)
+![The Text module converting Preeti to Unicode](https://raw.githubusercontent.com/NepaliTools/NepaliToolkit/v0.1.5-alpha/docs/evidence/panel-text-unicode.png)
 
 ## What is new
 
@@ -39,10 +39,10 @@ install once by hand.
 
 ## Download
 
-- [Installer](https://github.com/NepaliTools/NepaliToolkit/releases/download/v0.1.4-alpha/NepaliToolkit-0.1.4-alpha-win64-setup.exe).
+- [Installer](https://github.com/NepaliTools/NepaliToolkit/releases/download/v0.1.5-alpha/NepaliToolkit-0.1.5-alpha-win64-setup.exe).
   Per-user, no administrator.
-- [Portable zip](https://github.com/NepaliTools/NepaliToolkit/releases/download/v0.1.4-alpha/NepaliToolkit-0.1.4-alpha-win64-portable.zip).
-- [SHA256SUMS](https://github.com/NepaliTools/NepaliToolkit/releases/download/v0.1.4-alpha/SHA256SUMS.txt).
+- [Portable zip](https://github.com/NepaliTools/NepaliToolkit/releases/download/v0.1.5-alpha/NepaliToolkit-0.1.5-alpha-win64-portable.zip).
+- [SHA256SUMS](https://github.com/NepaliTools/NepaliToolkit/releases/download/v0.1.5-alpha/SHA256SUMS.txt).
 
 Both need WebView2. The build is unsigned, so Windows may show "Windows protected
 your PC"; choose More info, then Run anyway.

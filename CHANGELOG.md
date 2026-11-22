@@ -3,6 +3,16 @@
 All notable changes are recorded here. The format follows Keep a Changelog, and
 the project uses Semantic Versioning.
 
+## [0.1.5] - 2026-11-22
+
+### Fixed
+
+- Settings written by 0.1.3 no longer reset on upgrade. The `modules` object
+  gained a `text` field, and without a serde default for it the whole settings
+  file failed to parse, silently restoring language, channel, Nepal date,
+  autostart and module toggles to their defaults. Missing fields now take their
+  documented defaults and every other saved value survives.
+
 ## [0.1.4] - 2026-11-22
 
 Text module: Preeti and Unicode in both directions, plus an in-place shortcut.

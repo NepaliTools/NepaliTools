@@ -31,6 +31,7 @@ mod badges;
 // ---------------------------------------------------------------- settings
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
 struct Modules {
     today: bool,
     converter: bool,

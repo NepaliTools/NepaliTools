@@ -95,15 +95,15 @@ directions. The key table is factual layout data; its source and hash are in
 
 ## Install
 
-The 0.1.4 alpha ships as a per-user installer and a portable zip for Windows 10
+The 0.1.5 alpha ships as a per-user installer and a portable zip for Windows 10
 and 11, 64-bit.
 
-- [Installer](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.4-alpha/NepaliToolkit-0.1.4-alpha-win64-setup.exe)
+- [Installer](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.5-alpha/NepaliToolkit-0.1.5-alpha-win64-setup.exe)
   installs for the current user, adds a Start Menu shortcut and an uninstaller,
   and needs no administrator.
-- [Portable zip](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.4-alpha/NepaliToolkit-0.1.4-alpha-win64-portable.zip)
+- [Portable zip](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.5-alpha/NepaliToolkit-0.1.5-alpha-win64-portable.zip)
   extracts and runs from any folder.
-- [Release notes and checksums](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.4-alpha)
+- [Release notes and checksums](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.5-alpha)
   cover both.
 - The build is unsigned, so Windows may show "Windows protected your PC". Choose
   More info, then Run anyway.
@@ -113,7 +113,7 @@ need the
 [Evergreen runtime](https://developer.microsoft.com/microsoft-edge/webview2/).
 The installer embeds the bootstrapper.
 
-0.1.4 adds the Text module and the in-place shortcut. Install it once; from then
+0.1.5 adds the Text module and the in-place shortcut. Install it once; from then
 on Settings has Check for updates. Open Settings, pick Stable, Beta or Alpha, then
 press Check: the app reads that channel's signed manifest from
 nepalitools.pages.dev, downloads the signed installer from GitHub Releases if a
@@ -260,7 +260,7 @@ More reading: [GLOSSARY](GLOSSARY.md), [ACCEPTANCE](ACCEPTANCE.md),
 
 ## Status
 
-0.1.4 alpha. Windows only, unsigned, and used daily by its author. The project is
+0.1.5 alpha. Windows only, unsigned, and used daily by its author. The project is
 not affiliated with the Government of Nepal or any calendar authority.
 
 ## License
