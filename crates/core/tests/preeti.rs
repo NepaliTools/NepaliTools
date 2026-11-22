@@ -189,6 +189,49 @@ fn ra_foot_and_ru_glyphs() {
 }
 
 #[test]
+fn colon_visarga_and_visual_matra_order() {
+    // A bare M is a colon; an M closing a word is a visarga.
+    assert_eq!(preeti_to_unicode("M").text, ":");
+    assert_eq!(preeti_to_unicode("g]kfn M").text, "नेपाल:");
+    assert_eq!(preeti_to_unicode("k'gM").text, "पुनः");
+    // The bindu must move behind the matra before the vowels combine.
+    assert_eq!(preeti_to_unicode("cf+}").text, "औं");
+    assert_eq!(preeti_to_unicode(";ftf+}").text, "सातौं");
+    // Matras typed in visual order still make the right vowel.
+    assert_eq!(preeti_to_unicode("ad]flhd").text, "बमोजिम");
+}
+
+#[test]
+fn punctuation_uses_preeti_keys() {
+    assert_eq!(unicode_to_preeti("नेपाल/काठमाडौं").text, "g]kfn÷sf7df8f}+");
+    assert_eq!(unicode_to_preeti("२०%").text, "@)Ü");
+    assert_eq!(unicode_to_preeti("(क)").text, "-s_");
+    assert_eq!(unicode_to_preeti("१+२").text, "!±@");
+    assert_eq!(unicode_to_preeti("नमस्ते।").text, "gd:t].");
+    assert_eq!(unicode_to_preeti("२०८३").text, "@)*#");
+    assert_eq!(preeti_to_unicode("-s_").text, "(क)");
+}
+
+#[test]
+fn legacy_variants_from_a_real_document() {
+    for (preeti, unicode) in [
+        (";}¢flGts", "सैद्धान्तिक"),
+        ("sÝf", "कठ्ठा"),
+        ("gl;{·", "नर्सिङ"),
+        ("gl;{∙", "नर्सिङ"),
+        (":sÒn", "स्कुल"),
+        ("s]G›", "केन्द्र"),
+        ("dxŒj", "महत्व"),
+        ("6ØfS6/", "ट्याक्टर"),
+        ("cfˆgf]", "आफ्नो"),
+        ("k'¥ofpg", "पुर्याउन"),
+        ("k|mfO{", "फ्राई"),
+    ] {
+        assert_eq!(preeti_to_unicode(preeti).text, unicode, "variant {preeti:?}");
+    }
+}
+
+#[test]
 fn unrepresentable_characters_are_reported() {
     // ॲ has no Preeti key.
     let got = unicode_to_preeti("नेपाल ॲ");

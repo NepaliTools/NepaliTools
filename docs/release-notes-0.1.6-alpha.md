@@ -14,7 +14,7 @@ Preeti output that draws correctly.
   a detached matra.
 - **Short-i after a foot** lands after the whole cluster: प्रि is `lk|`, ट्रि is
   `l6«`.
-- The corpus is now 100 pairs and includes all of these, checked against an
+- The corpus is now 126 pairs and includes all of these, checked against an
   independent converter and replayed by `cargo test` in both directions.
 
 Nothing else changed. Dates, the tray badge, channels and the update logic are

@@ -11,8 +11,8 @@
 
 ## Get the app
 
-Download the 0.1.6 alpha from the
-[release page](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.6-alpha).
+Download the 0.1.7 alpha from the
+[release page](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.7-alpha).
 
 - **Installer:** download the setup exe and run it. It installs for the current
   user, adds a Start Menu shortcut and an uninstaller, and needs no administrator.
@@ -23,7 +23,7 @@ Both need WebView2. The installer embeds the bootstrapper. The build is unsigned
 so SmartScreen may show "Windows protected your PC"; choose More info,
 then Run anyway.
 
-Older alphas cannot update themselves. Install 0.1.6 once; from then on Settings
+Older alphas cannot update themselves. Install 0.1.7 once; from then on Settings
 has Check for updates and the channel menu. The check is manual, the installer is
 signed, and it runs quietly and restarts the app. The portable build asks you to
 download the new zip instead.

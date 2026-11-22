@@ -68,6 +68,9 @@ plus `cargo build --release -p nepalitoolkit` for the portable executable.
 | 37 | Text module toggle | turn Text off on the Modules page | PASS. The Text tab disappears, the segmented bar stays for the other modules, and the setting persists. | `settings.json`; screenshot |
 | 38 | Settings survive an upgrade | start 0.1.5 against a 0.1.3 settings file that has no `text` flag or `shortcut_mode` | PASS. Language (np), channel (beta), Nepal date, autostart off and converter off all survived; the new module defaulted on and the mode to auto. | state read from the running app |
 | 39 | Preeti glyph forms | convert प्र, रु, रू, क्र, राष्ट्र, प्रि and replay each through the reference converter | PASS. Output uses `k|`, `?`, `¿`, `s|`, `/fi6«`, `lk|`; every pair round-trips and the oracle reads back the same word. The old `K/` and `/'` forms are gone. | `crates/core/tests/preeti.rs`; `data/preeti-corpus.tsv` |
+| 40 | Real report coverage | extract the Preeti and Sagarmatha spans from a 166-page report and convert 23,779 words | PASS. Only typographic dashes and curly quotes stay as they arrived; five tokens keep a literal `m` from a ligature no public table documents. No unmapped letters remain. | `tmp/scan-doc.py` run; corpus rows |
+| 41 | Legacy font variants | convert words that use the report's alternate keys | PASS. ¬ Ò ¢ Ý › < Ø Œ · ∙ ÷ Ü ˆ ¥ æ Æ all produce the word they appear in (भद्रपुर, सैद्धान्तिक, कठ्ठा, केन्द्र, ट्याक्टर, महत्व, नर्सिङ). 26 rows are marked `preeti` in the corpus. | tests; corpus |
+| 42 | Punctuation and digits | convert नेपाल/काठमाडौं, २०%, (क), १+२, नमस्ते। and २०८३ | PASS. Output uses `÷`, `Ü`, `-` `_`, `±`, `.` and Preeti digit keys, so a slash no longer renders as र or a percent as ५. | tests |
 
 ## How the midnight check was run
 

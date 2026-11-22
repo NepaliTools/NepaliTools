@@ -12,7 +12,8 @@ plain HTML and CSS panel.
 
 | Version | Channel | Date | Notes |
 |---|---|---|---|
-| 0.1.6 | alpha | 2026-11-22 | Text module, in-place shortcut, settings migration, and correct ra-foot and ru glyphs. Current. |
+| 0.1.7 | alpha | 2026-11-22 | Text module, in-place shortcut, real-document Preeti variants and punctuation. Current. |
+| 0.1.6 | alpha | 2026-11-22 | Correct ra-foot and ru glyphs. |
 | 0.1.5 | alpha | 2026-11-22 | Text module and the settings migration fix. |
 | 0.1.4 | alpha | 2026-11-22 | Text module; reset settings saved by 0.1.3. Superseded. |
 | 0.1.3 | alpha | 2026-11-22 | Update channels: Stable, Beta, Alpha. |
@@ -51,7 +52,7 @@ An empty channel answers 404, which the app shows as "No Beta release yet".
   `detect`. The key table is `data/preeti-map.tsv`, vendored from an MIT source
   and filtered to keys an independent converter confirmed. Provenance is in
   `data/SOURCES.md`.
-- `data/preeti-corpus.tsv` holds 100 pairs. `crates/core/tests/preeti.rs` replays
+- `data/preeti-corpus.tsv` holds 126 pairs; 26 are real-document variants marked `preeti`. `crates/core/tests/preeti.rs` replays
   them; rows marked `unicode` are extensions (mixed English, independent ऐ) and
   are skipped by the reverse round-trip.
 - Unrepresentable characters are left in place and returned in
@@ -78,7 +79,7 @@ password), `gh` with `repo` scope, and the site checkout at `..\nepalitools-site
    default branch tip, not the working tree; if the tag lands on the previous
    commit, move it with
    `gh api --method PATCH repos/NepaliTools/NepaliTools/git/refs/tags/<tag> -f sha=<sha> -F force=true`.
-6. Run `tools\release.ps1 -Version 0.1.7 -Channel alpha`. It builds, signs,
+6. Run `tools\release.ps1 -Version 0.1.8 -Channel alpha`. It builds, signs,
    writes the manifest and checksums, creates the release, and deploys the site.
 
 The updater key is the trust root. Losing it means existing installs cannot

@@ -3,6 +3,30 @@
 All notable changes are recorded here. The format follows Keep a Changelog, and
 the project uses Semantic Versioning.
 
+## [0.1.7] - 2026-11-22
+
+### Added
+
+- Extended Preeti input keys read from a real 166-page report and the MIT
+  nepalibhasha map: ¬ Ò Œ · ∙ ÷ Ü ˆ ¥ æ Æ ¢ Ý › < Ø. They cover the several
+  legacy fonts a real document mixes.
+- Devanagari digits map to Preeti digit keys, and `/ % ( ) + . ; : ? ! =` use
+  their Preeti keys instead of rendering as र, ५, a danda or a halant.
+- 26 real-document rows in the corpus, marked `preeti` because they are input
+  variants rather than the canonical spelling.
+
+### Fixed
+
+- A standalone `M` becomes a colon and loses the space that separated it; an `M`
+  closing a word stays a visarga (पुनः, क्रमशः).
+- Bindu and chandrabindu move behind the vowel sign before the vowels combine:
+  `cf+}` is औं, not आैं.
+- Matras typed in visual order (`ेा`, `ैा`) make ो and ौ, so बमोजिम and बेमौसमी
+  read correctly.
+- फ and its half form convert through `km` and `ˆ`, so आफ्नो and फ्राई work.
+- `m` after a ra-foot turns प into फ: `k|m` is फ्र.
+- द्र is built from the base letter and the ra-foot instead of the extended key.
+
 ## [0.1.6] - 2026-11-22
 
 ### Fixed

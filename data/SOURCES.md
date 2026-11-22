@@ -65,7 +65,44 @@ particular document.
 
 Rows that the oracle did not confirm were dropped rather than guessed, so the
 table covers the keys that round-trip in practice. `data/preeti-corpus.tsv`
-records 100 pairs. Each was checked against the oracle where the oracle covers the
+records 126 pairs. Each was checked against the oracle where the oracle covers the
 case; the rows where Preeti needs a convention of this project (the independent
-ऐ and mixed English) are marked `unicode` in the file. `cargo test -p npt-core
---test preeti` replays them in both directions.
+ऐ, mixed English, and the document variants) are marked in the file. `cargo test
+-p npt-core --test preeti` replays them in both directions.
+
+## Real-document variants
+
+A 166-page Preeti report was used to check the converter against text nobody wrote
+for a test. It is a private document and is not committed. Its spans use several
+legacy fonts (Preeti, Sagarmatha, Nepali_DLS_I, Ganesh), and some glyphs differ
+from the MIT tables above. Each of these was read from at least one word in
+context, then added as an input-only key:
+
+| Key | Value | Word it was read from |
+|---|---|---|
+| ¬ Ò | ु | भद्रपुर, स्कुल |
+| ¢ | द्ध | सैद्धान्तिक |
+| Ý | ठ्ठ | कठ्ठा |
+| › | द्र | केन्द्र |
+| < | ्र | हाइड्रोपावर |
+| Ø | ्य | ट्याक्टर |
+| Œ | त् | महत्व |
+| · ∙ | ङ | नर्सिङ |
+| ÷ | / | २०८२/०८३ |
+| Ü | % | २०% |
+| ˆ \uf000 | फ् | आफ्नो |
+| ¥ | र् | पुर्याउन |
+| æ Æ | “ ” | quotation marks |
+
+Second source for the rules and the punctuation keys:
+
+- https://github.com/nepalibhasha/nepali-fonts, `packages/converter-js/src/maps/preeti.ts`
+  and its test vectors, MIT. Retrieved 2026-11-22.
+
+The report also showed that a standalone `M` is a colon (267 cases) while an `M`
+closing a word is a visarga (36 cases); the converter decides by position. Text
+after a colon loses the space that separated it.
+
+Coverage on that document: 23,779 tokens, with only typographic dashes and curly
+quotes left as they arrived. Five tokens keep a literal `m` because some fonts use
+`m` after a ra-foot for a ligature that no public table documents.

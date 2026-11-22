@@ -95,7 +95,13 @@ fn is_comment(line: &str) -> bool {
     line.starts_with("# ") || line.starts_with("##")
 }
 
-fn kind_of(value: &str) -> Kind {    let mut has_matras = false;
+fn kind_of(value: &str) -> Kind {
+    // A value that is only a halant plus र is the ra-foot sign, not a
+    // consonant cluster: it attaches to the letter before it.
+    if value.starts_with('\u{094d}') {
+        return Kind::Matra;
+    }
+    let mut has_matras = false;
     let mut has_consonant = false;
     for ch in value.chars() {
         if ch == '\u{094d}' {
@@ -188,6 +194,19 @@ fn resolve_modifiers(atoms: &mut Vec<Atom>) {
             },
             _ => None,
         });
+        // `k|m` is फ्र: the m aspirates the प across the ra-foot.
+        if replacement.is_none() {
+            if let Some(j) = previous {
+                if j + 1 < index
+                    && matches!(atoms[j], Atom::Text("प", _))
+                    && matches!(atoms[j + 1], Atom::Text("\u{094d}\u{0930}", _))
+                {
+                    atoms[j] = Atom::Text("फ", Kind::Consonant);
+                    atoms.remove(index);
+                    continue;
+                }
+            }
+        }
         match (previous, replacement) {
             (Some(j), Some(text)) => {
                 atoms[j] = Atom::Text(text, Kind::Consonant);
@@ -285,10 +304,39 @@ fn ends_with_halant(atoms: &[Atom]) -> bool {
 
 fn clean(chars: Vec<char>) -> String {
     let chars = drop_dangling_aa(chars);
-    let chars = merge_vowels(chars);
+    // Bindu and chandrabindu move behind their vowel sign before the vowel
+    // signs combine: अ + ा + ं + ै is औं, not आैं.
     let chars = move_bindu(chars);
+    let chars = merge_vowels(chars);
     let chars = dedupe(chars);
+    let chars = colon_for_standalone_visarga(chars);
     chars.into_iter().collect()
+}
+
+/// A `M` is a colon unless it closes a word, where it is a visarga: `k'gM` is
+/// पुनः but `स्रोत M` and `आवधताःलागि` are colons.
+fn colon_for_standalone_visarga(chars: Vec<char>) -> Vec<char> {
+    let mut out = Vec::with_capacity(chars.len());
+    for (index, ch) in chars.iter().enumerate() {
+        if *ch == '\u{0903}' {
+            let attached = index > 0 && !chars[index - 1].is_whitespace();
+            let closes_word = chars
+                .get(index + 1)
+                .map(|next| next.is_whitespace())
+                .unwrap_or(true);
+            if !(attached && closes_word) {
+                // A colon attaches to the word before it, so drop the space the
+                // document used to separate the M.
+                if matches!(out.last(), Some(' ') | Some('\t')) {
+                    out.pop();
+                }
+                out.push(':');
+                continue;
+            }
+        }
+        out.push(*ch);
+    }
+    out
 }
 
 /// `\f` is a half letter followed by ā. Together they are the full letter, so
@@ -308,7 +356,7 @@ fn drop_dangling_aa(chars: Vec<char>) -> Vec<char> {
 }
 
 fn merge_vowels(chars: Vec<char>) -> Vec<char> {
-    const RULES: [(&str, char); 7] = [
+    const RULES: [(&str, char); 9] = [
         ("अाे", 'ओ'),
         ("अाै", 'औ'),
         ("अा", 'आ'),
@@ -316,6 +364,10 @@ fn merge_vowels(chars: Vec<char>) -> Vec<char> {
         ("एे", 'ऐ'),
         ("ाे", 'ो'),
         ("ाै", 'ौ'),
+        // The matra order is visual in Preeti; these two are typed the other way
+        // round in real documents (बमोजिम, बेमौसमी).
+        ("ेा", 'ो'),
+        ("ैा", 'ौ'),
     ];
     let mut out = chars;
     for (from, to) in RULES {
@@ -389,6 +441,11 @@ fn reverse_table() -> &'static HashMap<&'static str, char> {
             let Some(key) = parts.next() else { continue };
             let Some(value) = parts.next() else { continue };
             let Some(ch) = key.chars().next() else { continue };
+            // A private-use key is an input shortcut from some fonts; never
+            // write it back out.
+            if ('\u{e000}'..='\u{f8ff}').contains(&ch) {
+                continue;
+            }
             // First row wins: the table lists canonical keys before extras.
             map.entry(value).or_insert(ch);
         }
@@ -404,9 +461,18 @@ fn ligatures() -> &'static Vec<(&'static str, char)> {
         list.extend(
             reverse_table()
                 .iter()
-                .filter(|(value, _)| {
+                .filter(|(value, key)| {
                     let count = value.chars().count();
-                    count > 1 && kind_of(value) == Kind::Consonant && !value.ends_with('\u{094d}')
+                    let ra_foot = value.chars().count() == 3
+                        && value.chars().nth(1) == Some('\u{094d}')
+                        && value.chars().nth(2) == Some('र');
+                    // त्र has its own key; the extended द्र is built from the
+                    // base letter and the ra-foot instead.
+                    let keep_ra_foot = ra_foot && key.is_ascii();
+                    count > 1
+                        && kind_of(value) == Kind::Consonant
+                        && !value.ends_with('\u{094d}')
+                        && (!ra_foot || keep_ra_foot)
                 })
                 .map(|(value, key)| (*value, *key)),
         );
@@ -420,6 +486,8 @@ fn full_of(ch: char) -> Option<String> {
         // Letters Preeti only has as half forms; आ folds the half back to full.
         'ण' => return Some("0f".into()),
         'ष' => return Some("if".into()),
+        // फ is typed as प plus the m modifier, not with a key of its own.
+        'फ' => return Some("km".into()),
         _ => {}
     }
     reverse_table()
@@ -510,6 +578,20 @@ pub fn unicode_to_preeti(input: &str) -> Conversion {
             '\u{0902}' => out.push('+'),
             '\u{0901}' => out.push('F'),
             '\u{0903}' => out.push('M'),
+            // ASCII punctuation that Preeti has a different key for. Without
+            // these, a slash renders as र, a percent as ५ and a period as a
+            // danda.
+            '/' => out.push('\u{00f7}'),
+            '%' => out.push('\u{00dc}'),
+            '(' => out.push('-'),
+            ')' => out.push('_'),
+            '+' => out.push('\u{00b1}'),
+            '.' => out.push('='),
+            ';' => out.push('\u{00d9}'),
+            ':' => out.push('M'),
+            '?' => out.push('<'),
+            '!' => out.push('\u{00db}'),
+            '=' => out.push('\u{00d6}'),
             _ => match ch.to_string().as_str() {
                 "आ" => out.push_str("cf"),
                 "इ" => out.push('O'),
