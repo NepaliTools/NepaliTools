@@ -226,6 +226,15 @@ select {
   font: inherit;
   font-size: 13px;
   width: 100%;
+  color-scheme: dark;
+}
+
+/* The popup list is drawn by WebView2, not by the page, so its rows need their
+   own opaque colours; inheriting --text on a default white popup made the
+   unselected entries almost invisible. */
+select option {
+  background: #1a1a1f;
+  color: #f2f2f4;
 }
 
 select.compact {
@@ -238,8 +247,14 @@ input[type="date"] {
 }
 
 @media (prefers-color-scheme: light) {
-  input[type="date"] {
+  input[type="date"],
+  select {
     color-scheme: light;
+  }
+
+  select option {
+    background: #ffffff;
+    color: #17171b;
   }
 }
 

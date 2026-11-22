@@ -54,6 +54,7 @@ plus `cargo build --release -p nepalitoolkit` for the portable executable.
 | 23 | Channel default and memory | fresh `settings.json` with no `channel`, then pick Beta, quit, relaunch | PASS. A missing or unknown value loads as `alpha`; picking Beta writes `"channel": "beta"` and the select shows Beta after relaunch. The debug run above ended back on `alpha`. | `settings.json`; `docs/evidence/updater-channel-alpha.png` |
 | 24 | Channel selects the manifest | press Check on each channel against the live site | PASS. Alpha reads `updates/alpha.json` and logs `update: up to date on alpha`; beta and stable return 404, which the app logs as `no manifest on channel ...` and shows as its own state, not an error. | log lines; `docs/evidence/updater-channel-empty.png` |
 | 25 | Empty channel wording | Beta and Stable with no release published | PASS. The card reads `No Beta release yet.` and `No Stable release yet.` instead of claiming the build is current. | `docs/evidence/updater-channel-empty.png` |
+| 26 | Channel dropdown legibility | open the Channel select in dark mode | PASS. The popup rows are dark with light text, so Stable, Beta and Alpha all stay readable; the selected row is highlighted. Before the fix the rows were white with inherited light text. | `docs/evidence/panel-select-popup.png` |
 
 ## How the midnight check was run
 

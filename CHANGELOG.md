@@ -3,6 +3,14 @@
 All notable changes are recorded here. The format follows Keep a Changelog, and
 the project uses Semantic Versioning.
 
+## [Unreleased]
+
+### Fixed
+
+- The Channel dropdown drew its rows white while inheriting light text, so Stable
+  and Beta were nearly invisible in dark mode. The popup and its options now set
+  their own colours in both themes.
+
 ## [0.1.3] - 2026-11-22
 
 Update channels.

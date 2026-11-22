@@ -1,6 +1,7 @@
 # Handoff: NepaliToolkit
 
-Updated 2026-11-22. Toolkit `main` at `a2bf00b`, site `main` at `52af68d`.
+Updated 2026-11-22. Toolkit `main` and site `main`; run `git log -1` for the
+exact heads.
 
 A Windows tray app for Bikram Sambat: today's Nepali date in Devanagari on the
 icon, a two-way BS and AD converter, English or Nepali interface, no telemetry.
@@ -63,6 +64,15 @@ password), `gh` with `repo` scope, and the site checkout at `..\nepalitools-site
 The updater key is the trust root. Losing it means existing installs cannot
 verify a new release and everyone reinstalls by hand. Keep an offline backup and
 never commit it.
+
+## Unreleased, waiting for a batch
+
+- Channel dropdown rows now follow the theme; the popup drew white rows with
+  light text, so Stable and Beta were unreadable in dark mode. Fixed in
+  `crates/host/ui/styles.css`, verified against the open popup. No release cut.
+
+Releases are batched: keep changes under `[Unreleased]` in `CHANGELOG.md` and cut
+a version only when several changes are worth shipping.
 
 ## Next
 
