@@ -4,6 +4,7 @@
 # goes into the repository, and this script never prints it. See docs/RELEASING.md.
 param(
     [Parameter(Mandatory = $true)][string]$Version,
+    [ValidateSet('alpha', 'beta', 'stable')][string]$Channel = 'alpha',
     [string]$NotesFile,
     [string]$KeyPath = (Join-Path $HOME '.tauri\nepalitoolkit.key'),
     [string]$Site,
@@ -15,8 +16,8 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 Set-Location $root
 
-$tag = "v$Version-alpha"
-if (-not $NotesFile) { $NotesFile = "docs\release-notes-$Version-alpha.md" }
+$tag = if ($Channel -eq 'stable') { "v$Version" } else { "v$Version-$Channel" }
+if (-not $NotesFile) { $NotesFile = "docs\release-notes-$Version-$Channel.md" }
 if (-not $Site) { $Site = Join-Path $root '..\nepalitools-site' }
 if (-not (Test-Path $KeyPath)) { throw "Updater key not found at $KeyPath" }
 if (-not (Test-Path $NotesFile)) { throw "Release notes not found at $NotesFile" }
@@ -54,29 +55,64 @@ New-Item -ItemType Directory -Force -Path $portableDir | Out-Null
 Copy-Item $setup $setupAsset -Force
 Copy-Item $sig "$setupAsset.sig" -Force
 Copy-Item $portableExe (Join-Path $portableDir 'NepaliToolkit.exe') -Force
-Compress-Archive -Path (Join-Path $portableDir '*') -DestinationPath $portableZip -Force
+# Compress-Archive stalls on this machine with a 5 MB folder; ZipFile returns.
+if (Test-Path $portableZip) { Remove-Item $portableZip -Force }
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+[IO.Compression.ZipFile]::CreateFromDirectory($portableDir, $portableZip)
 
 $signature = (Get-Content $sig -Raw).Trim()
 $notes = Get-Content $NotesFile -Raw
 $url = "https://github.com/NepaliTools/NepaliTools/releases/download/$tag/$setupAssetName"
-$manifest = [ordered]@{
-    version = $Version
-    notes = $notes
-    pub_date = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
-    platforms = [ordered]@{
-        'windows-x86_64' = [ordered]@{
-            signature = $signature
-            url = $url
+$pubDate = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+
+# ConvertTo-Json stalls indefinitely on this machine once the notes string is in
+# the object, so the manifest is encoded by hand. It is four fields wide.
+function ConvertTo-JsonString([string]$value) {
+    $sb = New-Object System.Text.StringBuilder
+    [void]$sb.Append('"')
+    foreach ($ch in $value.ToCharArray()) {
+        switch ($ch) {
+            '"' { [void]$sb.Append('\"'); break }
+            '\' { [void]$sb.Append('\\'); break }
+            "`b" { [void]$sb.Append('\b'); break }
+            "`f" { [void]$sb.Append('\f'); break }
+            "`n" { [void]$sb.Append('\n'); break }
+            "`r" { [void]$sb.Append('\r'); break }
+            "`t" { [void]$sb.Append('\t'); break }
+            default {
+                if ([int]$ch -lt 32) { [void]$sb.Append(('\u{0:x4}' -f [int]$ch)) } else { [void]$sb.Append($ch) }
+            }
         }
     }
+    [void]$sb.Append('"')
+    $sb.ToString()
 }
-$json = $manifest | ConvertTo-Json -Depth 8
+
+$json = @"
+{
+  "version": "$Version",
+  "notes": $(ConvertTo-JsonString $notes),
+  "pub_date": "$pubDate",
+  "platforms": {
+    "windows-x86_64": {
+      "signature": $(ConvertTo-JsonString $signature),
+      "url": $(ConvertTo-JsonString $url)
+    }
+  }
+}
+"@
+$null = $json | ConvertFrom-Json
 $latest = Join-Path $out 'latest.json'
 [IO.File]::WriteAllText($latest, $json, (New-Object System.Text.UTF8Encoding($false)))
 
 $siteUpdates = Join-Path $Site 'updates'
 New-Item -ItemType Directory -Force -Path $siteUpdates | Out-Null
-[IO.File]::WriteAllText((Join-Path $siteUpdates 'latest.json'), $json, (New-Object System.Text.UTF8Encoding($false)))
+$channelFile = Join-Path $siteUpdates "$Channel.json"
+[IO.File]::WriteAllText($channelFile, $json, (New-Object System.Text.UTF8Encoding($false)))
+if ($Channel -eq 'alpha') {
+    # 0.1.2 predates channels and still reads this one file.
+    [IO.File]::WriteAllText((Join-Path $siteUpdates 'latest.json'), $json, (New-Object System.Text.UTF8Encoding($false)))
+}
 
 $checksumFiles = @($setupAsset, $portableZip, $latest, "$setupAsset.sig")
 $checksums = foreach ($file in $checksumFiles) {
@@ -91,7 +127,10 @@ Get-ChildItem $out -File | Select-Object Name, Length
 
 if (-not $SkipPublish) {
     $assets = @($setupAsset, $portableZip, $latest, "$setupAsset.sig", (Join-Path $out 'SHA256SUMS.txt'))
-    gh release create $tag --repo NepaliTools/NepaliTools --title "NepaliToolkit $Version alpha" --notes-file $NotesFile --prerelease @assets
+    $releaseArgs = @('release', 'create', $tag, '--repo', 'NepaliTools/NepaliTools', '--title', "NepaliToolkit $Version $Channel", '--notes-file', $NotesFile)
+    if ($Channel -ne 'stable') { $releaseArgs += '--prerelease' }
+    $releaseArgs += $assets
+    gh @releaseArgs
     if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
     Write-Host "Release: https://github.com/NepaliTools/NepaliTools/releases/tag/$tag"
 }

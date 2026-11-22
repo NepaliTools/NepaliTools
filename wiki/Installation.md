@@ -11,8 +11,8 @@
 
 ## Get the app
 
-Download the 0.1.2 alpha from the
-[release page](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.2-alpha).
+Download the 0.1.3 alpha from the
+[release page](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.3-alpha).
 
 - **Installer:** download the setup exe and run it. It installs for the current
   user, adds a Start Menu shortcut and an uninstaller, and needs no administrator.
@@ -20,24 +20,26 @@ Download the 0.1.2 alpha from the
   any folder.
 
 Both need WebView2. The installer embeds the bootstrapper. The build is unsigned,
-so Windows SmartScreen may show "Windows protected your PC"; choose More info,
+so SmartScreen may show "Windows protected your PC"; choose More info,
 then Run anyway.
 
-The 0.1.0 alpha had no updater. Install 0.1.2 once; from then on Settings has
-Check for updates. The check is manual, the installer is signed, and it runs
-quietly and restarts the app. The portable build asks you to download the new zip
-instead.
+Older alphas cannot update themselves. Install 0.1.3 once; from then on Settings
+has Check for updates and the channel menu. The check is manual, the installer is
+signed, and it runs quietly and restarts the app. The portable build asks you to
+download the new zip instead.
 
 ## Update
 
 1. Open Settings.
-2. Under Updates, press Check.
-3. If a newer alpha exists, press Install and restart. The app downloads the
-   signed installer, verifies it, installs it without opening an installer window,
-   and starts the new version.
+2. Choose a channel: Stable, Beta or Alpha.
+3. Press Check. If a newer build exists on that channel, press Install and
+   restart. The app downloads the signed installer, verifies it, installs it
+   without opening an installer window, and starts the new version.
 
 There is no background check and no automatic download. The only network request
-is this one.
+is this one. Alpha receives every build; beta and stable receive the same signed
+installer later, when it is promoted, so they are often empty. A channel with no
+release says so instead of reporting that you are current.
 
 ## Build from source
 

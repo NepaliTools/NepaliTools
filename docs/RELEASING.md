@@ -11,6 +11,44 @@ would have to download a new installer by hand. Back the key up somewhere safe
 and offline. Never commit it, paste it into an issue, or put it in `TAURI_*`
 variables that a CI log can print.
 
+## Channels
+
+The app offers **Stable**, **Beta** and **Alpha** in Settings. Each one reads a
+separate static manifest:
+
+```
+https://nepalitools.pages.dev/updates/stable.json
+https://nepalitools.pages.dev/updates/beta.json
+https://nepalitools.pages.dev/updates/alpha.json
+```
+
+`updates/latest.json` always mirrors alpha. It exists because 0.1.2, the first
+build with an updater, reads that one file and has no channel setting.
+
+A channel is a promotion track, not a version line. Every release is built and
+published to alpha first:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\release.ps1 -Version 0.1.4 -Channel alpha
+```
+
+When a build has been out long enough, promote the same signed installer without
+rebuilding:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\promote.ps1 -From alpha -To beta
+powershell -ExecutionPolicy Bypass -File tools\promote.ps1 -From beta -To stable
+```
+
+Promotion copies the manifest, so the version, URL and signature do not change.
+Stable therefore never receives bytes that did not first ship on alpha. A channel
+with no manifest yet is not an error: the app logs `no manifest on channel beta`
+and shows "No Beta release yet".
+
+Keep the version numbers increasing across all channels. A user who drops from
+alpha to stable is offered nothing until stable passes the version they already
+have; the updater never downgrades.
+
 ## Prepare
 
 1. Bump the version in `Cargo.toml` and `crates/host/tauri.conf.json`. They must
@@ -28,6 +66,10 @@ release, and deploys the site:
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools\release.ps1 -Version 0.1.3
 ```
+
+`-Channel` defaults to `alpha`; the tag becomes `v0.1.3-alpha`, or `v0.2.0` for a
+stable release. `-NotesFile` defaults to
+`docs\release-notes-<version>-<channel>.md`.
 
 It expects:
 

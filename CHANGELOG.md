@@ -3,6 +3,28 @@
 All notable changes are recorded here. The format follows Keep a Changelog, and
 the project uses Semantic Versioning.
 
+## [0.1.3] - 2026-11-22
+
+Update channels.
+
+### Added
+
+- Channel choice in Settings: Stable, Beta and Alpha. Each reads its own signed
+  manifest (`updates/stable.json`, `updates/beta.json`, `updates/alpha.json`) and
+  the choice is stored in `settings.json`.
+- A channel with no release yet says so instead of claiming the app is current.
+- `tools/promote.ps1` moves a published release to a slower channel without
+  rebuilding it, and `tools/release.ps1` gained `-Channel`.
+- `updates/alpha.json` on the site; `updates/latest.json` stays as the alias that
+  0.1.2 reads.
+
+### Changed
+
+- The updater endpoint is chosen at runtime instead of coming only from
+  `tauri.conf.json`. The configured endpoint remains the fallback for builds that
+  predate channels.
+- Release tags follow the channel: `v0.1.3-alpha`, `v0.2.0-beta`, `v0.2.0`.
+
 ## [0.1.2] - 2026-11-21
 
 The first build with updates.
@@ -23,6 +45,8 @@ The first build with updates.
 - The only network request at runtime is the update check the user starts.
   README, SECURITY, the site and the wiki say so.
 - The installer description no longer claims there is no network.
+- The update check reads the manifest for the chosen channel, and the channel is
+  saved with the other settings.
 
 ## [0.1.0] - 2026-11-21
 

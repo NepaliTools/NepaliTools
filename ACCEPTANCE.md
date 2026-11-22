@@ -51,6 +51,9 @@ plus `cargo build --release -p nepalitoolkit` for the portable executable.
 | 20 | Up to date | press Check for updates in the 0.1.2 build against the 0.1.2 manifest | PASS. The panel read `Current version 0.1.2` and `You are on the latest alpha.`; the log read `update: up to date`. | `docs/evidence/updater-current.png`; app log |
 | 21 | Portable is not replaced | run the portable 0.1.2 exe and open Settings | PASS. The update card marks the build `portable`; the check works, and the Install button only exists for an installed build, so a portable copy is never overwritten by the NSIS updater. | `docs/evidence/updater-portable.png` |
 | 22 | Signature and version binding | inspect the release `.sig`, `latest.json` and `tauri.conf.json` | PASS. The installer is signed with the Tauri minisign key; the manifest carries that signature; the app pins the public key and sets `requireSignedVersion` plus `windows.installMode: quiet`. | `.sig`; `updates/latest.json`; `crates/host/tauri.conf.json` |
+| 23 | Channel default and memory | fresh `settings.json` with no `channel`, then pick Beta, quit, relaunch | PASS. A missing or unknown value loads as `alpha`; picking Beta writes `"channel": "beta"` and the select shows Beta after relaunch. The debug run above ended back on `alpha`. | `settings.json`; `docs/evidence/updater-channel-alpha.png` |
+| 24 | Channel selects the manifest | press Check on each channel against the live site | PASS. Alpha reads `updates/alpha.json` and logs `update: up to date on alpha`; beta and stable return 404, which the app logs as `no manifest on channel ...` and shows as its own state, not an error. | log lines; `docs/evidence/updater-channel-empty.png` |
+| 25 | Empty channel wording | Beta and Stable with no release published | PASS. The card reads `No Beta release yet.` and `No Stable release yet.` instead of claiming the build is current. | `docs/evidence/updater-channel-empty.png` |
 
 ## How the midnight check was run
 

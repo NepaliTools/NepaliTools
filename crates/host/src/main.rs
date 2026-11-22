@@ -48,6 +48,7 @@ struct Settings {
     lang: String,
     nepal_date: bool,
     autostart: bool,
+    channel: String,
     modules: Modules,
 }
 
@@ -57,9 +58,22 @@ impl Default for Settings {
             lang: "en".into(),
             nepal_date: false,
             autostart: true,
+            channel: "alpha".into(),
             modules: Modules::default(),
         }
     }
+}
+
+/// Release channels, newest build first. A channel is a promotion track, not a
+/// separate version line: `beta` and `stable` receive a copy of a manifest that
+/// was first published to `alpha`.
+const CHANNELS: [&str; 3] = ["stable", "beta", "alpha"];
+
+fn normalize_channel(value: &str) -> &'static str {
+    CHANNELS
+        .into_iter()
+        .find(|channel| *channel == value)
+        .unwrap_or("alpha")
 }
 
 struct AppState {
@@ -80,6 +94,8 @@ impl AppState {
             .ok()
             .and_then(|text| serde_json::from_str::<Settings>(&text).ok())
             .unwrap_or_default();
+        let mut settings = settings;
+        settings.channel = normalize_channel(&settings.channel).into();
         AppState {
             settings: Mutex::new(settings),
             path,
@@ -259,6 +275,7 @@ struct UiState {
     ad_max: String,
     version: String,
     portable: bool,
+    channel: String,
 }
 
 /// The installed build lives in `%LOCALAPPDATA%\NepaliToolkit`; anything else is
@@ -316,6 +333,7 @@ fn build_state(app: &AppHandle, state: &AppState) -> Result<UiState, String> {
         ad_max: iso(last),
         version: app.package_info().version.to_string(),
         portable: is_portable(),
+        channel: settings.channel.clone(),
     })
 }
 
@@ -535,6 +553,16 @@ fn set_autostart(
 }
 
 #[tauri::command]
+fn set_channel(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    channel: String,
+) -> Result<UiState, String> {
+    update_settings(state.inner(), |s| s.channel = normalize_channel(&channel).into())?;
+    build_state(&app, state.inner())
+}
+
+#[tauri::command]
 fn set_module(
     app: AppHandle,
     state: State<'_, AppState>,
@@ -590,36 +618,69 @@ struct UpdateInfo {
 }
 
 #[derive(Serialize, Clone)]
+struct UpdateCheck {
+    update: Option<UpdateInfo>,
+    /// True when the channel has no published manifest yet, which is not the
+    /// same as being up to date.
+    empty: bool,
+}
+
+#[derive(Serialize, Clone)]
 struct UpdateProgress {
     downloaded: usize,
     total: Option<u64>,
 }
 
+/// Every channel is a static manifest on the site. Keeping the endpoint out of
+/// `tauri.conf.json` lets the setting pick the channel at runtime, and the
+/// configured endpoint stays as the fallback for builds that predate channels.
+fn channel_endpoint(channel: &str) -> Result<tauri::Url, String> {
+    let channel = normalize_channel(channel);
+    let url = format!("https://nepalitools.pages.dev/updates/{channel}.json");
+    url.parse().map_err(|error| format!("bad update url: {error}"))
+}
+
+fn updater_for(app: &AppHandle, channel: &str) -> Result<tauri_plugin_updater::Updater, String> {
+    app.updater_builder()
+        .endpoints(vec![channel_endpoint(channel)?])
+        .map_err(|error| error.to_string())?
+        .build()
+        .map_err(|error| error.to_string())
+}
+
 /// Called only when the user presses Check for updates in Settings. The app
 /// makes no other network requests and never checks on a timer or at startup.
 #[tauri::command]
-async fn check_update(app: AppHandle) -> Result<Option<UpdateInfo>, String> {
-    log("update: checking");
-    let updater = app.updater().map_err(|error| error.to_string())?;
-    let update = updater
-        .check()
-        .await
-        .map_err(|error| {
+async fn check_update(app: AppHandle, channel: String) -> Result<UpdateCheck, String> {
+    let channel = normalize_channel(&channel);
+    log(&format!("update: checking {channel}"));
+    let updater = updater_for(&app, channel)?;
+    let update = match updater.check().await {
+        Ok(update) => update,
+        Err(tauri_plugin_updater::Error::ReleaseNotFound) => {
+            log(&format!("update: no manifest on channel {channel}"));
+            return Ok(UpdateCheck { update: None, empty: true });
+        }
+        Err(error) => {
             log(&format!("update: check failed: {error}"));
-            error.to_string()
-        })?;
+            return Err(error.to_string());
+        }
+    };
     match update {
         Some(update) => {
-            log(&format!("update: {} available", update.version));
-            Ok(Some(UpdateInfo {
-                version: update.version,
-                notes: update.body.unwrap_or_default(),
-                date: update.date.map(|date| date.to_string()),
-            }))
+            log(&format!("update: {} available on {channel}", update.version));
+            Ok(UpdateCheck {
+                update: Some(UpdateInfo {
+                    version: update.version,
+                    notes: update.body.unwrap_or_default(),
+                    date: update.date.map(|date| date.to_string()),
+                }),
+                empty: false,
+            })
         }
         None => {
-            log("update: up to date");
-            Ok(None)
+            log(&format!("update: up to date on {channel}"));
+            Ok(UpdateCheck { update: None, empty: false })
         }
     }
 }
@@ -627,8 +688,9 @@ async fn check_update(app: AppHandle) -> Result<Option<UpdateInfo>, String> {
 /// Downloads the signed installer and hands it to the NSIS updater in quiet
 /// mode (`/S /R`): no installer window, and the new build is started again.
 #[tauri::command]
-async fn install_update(app: AppHandle) -> Result<(), String> {
-    let updater = app.updater().map_err(|error| error.to_string())?;
+async fn install_update(app: AppHandle, channel: String) -> Result<(), String> {
+    let channel = normalize_channel(&channel);
+    let updater = updater_for(&app, channel)?;
     let Some(update) = updater
         .check()
         .await
@@ -636,7 +698,7 @@ async fn install_update(app: AppHandle) -> Result<(), String> {
     else {
         return Err("no update".into());
     };
-    log(&format!("update: installing {}", update.version));
+    log(&format!("update: installing {} from {channel}", update.version));
     let handle = app.clone();
     let mut downloaded = 0usize;
     update
@@ -810,6 +872,7 @@ fn main() {
             copy_text,
             hide_panel,
             quit_app,
+            set_channel,
             check_update,
             install_update
         ])

@@ -38,6 +38,9 @@ const STR = {
     openModules: "मोड्युल खोल्नु",
     updateTitle: "अपडेट",
     updateSub: "GitHub Releases बाट, थिचेपछि मात्र जाँचिन्छ।",
+    channelTitle: "च्यानल",
+    channelSub: "स्थिर, बिटा वा अल्फा रिलिज।",
+    channelEmpty: "{channel} च्यानलमा अझै कुनै रिलिज छैन।",
     updateCheck: "जाँच्नु",
     updateChecking: "जाँच हुँदै...",
     updateCurrent: "हालको संस्करण",
@@ -85,10 +88,13 @@ const STR = {
     openModules: "Open modules",
     updateTitle: "Updates",
     updateSub: "Checks GitHub Releases only when you press the button.",
+    channelTitle: "Channel",
+    channelSub: "Stable, beta or alpha releases.",
+    channelEmpty: "No {channel} release yet.",
     updateCheck: "Check",
     updateChecking: "Checking...",
     updateCurrent: "Current version",
-    updateLatest: "You are on the latest alpha.",
+    updateLatest: "You are on the latest release.",
     updateAvailable: "Update available",
     updateInstall: "Install and restart",
     updateInstalling: "Installing...",
@@ -256,11 +262,19 @@ function render() {
   show(screen);
 }
 
+function channelLabel(channel) {
+  return channel ? channel.charAt(0).toUpperCase() + channel.slice(1) : "";
+}
+
 function renderUpdates() {
   if (!S) return;
   const s = copyOf();
   $("update-title").textContent = s.updateTitle;
   $("update-current").textContent = `${s.updateCurrent} ${S.version}${S.portable ? ` · ${s.portable}` : ""}`;
+  $("update-channel-title").textContent = s.channelTitle;
+  $("update-channel-sub").textContent = s.channelSub;
+  $("update-channel").value = S.channel;
+  $("update-channel").disabled = updateStatus === "checking" || updateStatus === "installing";
   $("update-check").textContent = updateStatus === "checking" ? s.updateChecking : s.updateCheck;
   $("update-check").disabled = updateStatus === "checking" || updateStatus === "installing";
   const available = updateStatus === "available" && update;
@@ -278,6 +292,7 @@ function renderUpdates() {
     idle: s.updateSub,
     checking: s.updateChecking,
     current: s.updateLatest,
+    empty: s.channelEmpty.replace("{channel}", channelLabel(S.channel)),
     available: s.updateAvailable,
     failed: s.updateFailed,
     installing: updateTotal ? `${s.updateDownloading} ${progress.value}%` : s.updateInstalling,
@@ -294,8 +309,9 @@ async function checkForUpdate() {
   updateTotal = 0;
   renderUpdates();
   try {
-    update = await invoke("check_update");
-    updateStatus = update ? "available" : "current";
+    const result = await invoke("check_update", { channel: S.channel });
+    update = result.update;
+    updateStatus = update ? "available" : result.empty ? "empty" : "current";
   } catch (error) {
     console.error(error);
     updateStatus = "failed";
@@ -310,7 +326,7 @@ async function installUpdate() {
   updateTotal = 0;
   renderUpdates();
   try {
-    await invoke("install_update");
+    await invoke("install_update", { channel: S.channel });
   } catch (error) {
     console.error(error);
     updateStatus = "failed";
@@ -429,6 +445,12 @@ function wire() {
   $("nav-settings").addEventListener("click", () => show("settings"));
   $("update-check").addEventListener("click", checkForUpdate);
   $("update-install").addEventListener("click", installUpdate);
+  $("update-channel").addEventListener("change", async (event) => {
+    S = await invoke("set_channel", { channel: event.target.value });
+    update = null;
+    updateStatus = "idle";
+    renderUpdates();
+  });
   $("empty-modules").addEventListener("click", () => show("modules"));
   $("modules-back").addEventListener("click", () => show(S.modules.today ? "today" : "converter"));
   $("settings-back").addEventListener("click", () => show(S.modules.today ? "today" : "converter"));

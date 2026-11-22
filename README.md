@@ -36,15 +36,16 @@ The app ships two modules:
 
 The Modules page turns either module off. Settings holds the interface language
 (English by default, Nepali available), a switch that uses Nepal time
-(UTC+05:45) instead of the machine's date, the autostart toggle and a Check for
-updates button.
+(UTC+05:45) instead of the machine's date, the autostart toggle, and the update
+channel with a Check for updates button.
 
 The Nepali date always renders in Nepali, with Devanagari digits and Nepali month
 names, in both interface languages. The weekday and the Gregorian date follow the
 interface language.
 
 The app starts with Windows by default, runs as a single instance, and stores no
-telemetry. It checks for updates only when you press the button in Settings.
+telemetry. It checks for updates only when you press the button in Settings, and
+follows the stable, beta or alpha channel you pick.
 
 ## Screenshots
 
@@ -70,15 +71,15 @@ have no published gazette yet, and the interface marks them as projected.
 
 ## Install
 
-The 0.1.2 alpha ships as a per-user installer and a portable zip for Windows 10
+The 0.1.3 alpha ships as a per-user installer and a portable zip for Windows 10
 and 11, 64-bit.
 
-- [Installer](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.2-alpha/NepaliToolkit-0.1.2-alpha-win64-setup.exe)
+- [Installer](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.3-alpha/NepaliToolkit-0.1.3-alpha-win64-setup.exe)
   installs for the current user, adds a Start Menu shortcut and an uninstaller,
   and needs no administrator.
-- [Portable zip](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.2-alpha/NepaliToolkit-0.1.2-alpha-win64-portable.zip)
+- [Portable zip](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.3-alpha/NepaliToolkit-0.1.3-alpha-win64-portable.zip)
   extracts and runs from any folder.
-- [Release notes and checksums](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.2-alpha)
+- [Release notes and checksums](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.3-alpha)
   cover both.
 - The build is unsigned, so Windows may show "Windows protected your PC". Choose
   More info, then Run anyway.
@@ -88,12 +89,17 @@ need the
 [Evergreen runtime](https://developer.microsoft.com/microsoft-edge/webview2/).
 The installer embeds the bootstrapper.
 
-0.1.2 adds the update check. Open Settings and press Check for updates: the app
-reads a signed manifest from nepalitools.pages.dev, downloads the signed installer
-from GitHub Releases if a newer alpha exists, installs it quietly and restarts.
-There is no background check. The 0.1.0 alpha cannot update itself, so install
-0.1.2 once; from then on the button handles new alphas. The portable build tells
-you to download the new zip instead of replacing itself.
+0.1.3 adds the update check and the channel choice. Open Settings, pick Stable,
+Beta or Alpha, then press Check for updates: the app reads that channel's signed
+manifest from nepalitools.pages.dev, downloads the signed installer from GitHub
+Releases if a newer build exists, installs it quietly and restarts. There is no
+background check. The 0.1.0 alpha cannot update itself, so install once; from then
+on the button handles new builds. The portable build tells you to download the new
+zip instead of replacing itself.
+
+Every release is published to alpha first. Moving one to beta or stable is a
+manifest change, not a rebuild, so stable never receives bytes that did not first
+ship on alpha. Alpha is the only channel with a release today.
 
 The app starts in the notification area. Windows 11 usually places new tray icons
 in the hidden-icons overflow behind `^`. Drag the icon onto the taskbar to pin it.
@@ -159,11 +165,19 @@ Yes. Both directions use the bundled table. Conversion makes no network calls.
 
 ### How do updates work?
 
-Open Settings and press Check for updates. The app fetches a signed release
-manifest, and if a newer alpha exists it downloads the signed installer, verifies
-the signature and installs it quietly. The app restarts when the install finishes.
-There is no background check and no automatic download. The portable build points
-you at the release page instead, because it cannot replace itself.
+Open Settings, choose a channel, then press Check for updates. The app fetches
+that channel's signed manifest, and if a newer build exists it downloads the
+signed installer, verifies the signature and installs it quietly. The app
+restarts when the install finishes. There is no background check and no automatic
+download. The portable build points you at the release page instead, because it
+cannot replace itself.
+
+### What is the difference between Stable, Beta and Alpha?
+
+Alpha gets every build. Beta and stable receive the same signed installer later,
+when it has been promoted, so they always lag alpha by at least one release.
+Channels share one version line: a build promoted to stable keeps its version
+number. New installs start on alpha because every published build is an alpha.
 
 ### Which years are supported?
 
@@ -206,7 +220,7 @@ More reading: [GLOSSARY](GLOSSARY.md), [ACCEPTANCE](ACCEPTANCE.md),
 
 ## Status
 
-0.1.2 alpha. Windows only, unsigned, and used daily by its author. The project is
+0.1.3 alpha. Windows only, unsigned, and used daily by its author. The project is
 not affiliated with the Government of Nepal or any calendar authority.
 
 ## License
