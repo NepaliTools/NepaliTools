@@ -172,6 +172,23 @@ fn names_round_trip() {
 }
 
 #[test]
+fn ra_foot_and_ru_glyphs() {
+    // `K/` and `/'` map correctly but the font draws them with a visible
+    // halant or a detached matra, so the canonical keys are the only ones that
+    // look right.
+    pair("k|", "प्र");
+    pair("s|d", "क्रम");
+    pair("u|x", "ग्रह");
+    pair("a|Xd", "ब्रह्म");
+    pair("/fi6«", "राष्ट्र");
+    pair("?", "रु");
+    pair("¿", "रू");
+    pair("?k}ofF", "रुपैयाँ");
+    pair("lk|", "प्रि");
+    pair("l6«", "ट्रि");
+}
+
+#[test]
 fn unrepresentable_characters_are_reported() {
     // ॲ has no Preeti key.
     let got = unicode_to_preeti("नेपाल ॲ");

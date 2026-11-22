@@ -260,6 +260,11 @@ fn resolve_short_i(atoms: Vec<Atom>) -> Vec<Atom> {
                 _ => break,
             }
         }
+        // The ra-foot belongs to the cluster, so प्रि keeps ि after प्र.
+        if matches!(atoms.get(last + 1), Some(Atom::Text("\u{094d}\u{0930}", _))) {
+            last += 1;
+            out.push(atoms[last].clone());
+        }
         // A half form plus आ is the full letter (क्ष् + ा is क्ष), and the
         // short-i belongs after that letter, not between the two keys.
         if ends_with_halant(&out) {
@@ -442,9 +447,26 @@ pub fn unicode_to_preeti(input: &str) -> Conversion {
     while index < chars.len() {
         let ch = chars[index];
 
+        // रु and रू have their own glyphs in Preeti; र plus a matra does not
+        // join into them, so `/'` renders as two pieces.
+        if ch == '\u{0930}' {
+            match chars.get(index + 1) {
+                Some('\u{0941}') => {
+                    out.push('?');
+                    index += 2;
+                    continue;
+                }
+                Some('\u{0942}') => {
+                    out.push('\u{00bf}');
+                    index += 2;
+                    continue;
+                }
+                _ => {}
+            }
+        }
+
         // Reph: र + ् + consonant becomes consonant + `{`.
-        if ch == '\u{0930}' && chars.get(index + 1) == Some(&'\u{094d}') {
-            match chars.get(index + 2) {
+        if ch == '\u{0930}' && chars.get(index + 1) == Some(&'\u{094d}') {            match chars.get(index + 2) {
                 Some(&next) if is_consonant(next) => {
                     let (cluster, next_index) = read_cluster(&chars, index + 2);
                     out.push_str(&cluster);
@@ -538,6 +560,14 @@ fn read_cluster(chars: &[char], start: usize) -> (String, usize) {
     }
     let ch = chars[start];
     if chars.get(start + 1) == Some(&'\u{094d}') {
+        // A consonant plus र is the ra-foot, not a half form followed by a
+        // separate र. Retroflex letters take their own foot glyph; the plain
+        // `K/` form leaves a visible halant in the font.
+        if chars.get(start + 2) == Some(&'\u{0930}') {
+            let foot = if matches!(ch, 'ट' | 'ठ' | 'ड' | 'ढ') { '\u{00ab}' } else { '|' };
+            let base = full_of(ch).unwrap_or_else(|| ch.to_string());
+            return (format!("{base}{foot}"), start + 3);
+        }
         if let Some(&next) = chars.get(start + 2) {
             if is_consonant(next) {
                 let (rest, end) = read_cluster(chars, start + 2);

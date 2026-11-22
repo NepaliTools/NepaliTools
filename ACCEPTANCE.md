@@ -67,6 +67,7 @@ plus `cargo build --release -p nepalitoolkit` for the portable executable.
 | 36 | Shortcut modes | switch Auto and Split in the Text tab, then press each chord | PASS. Split registers Ctrl+Alt+P and Ctrl+Alt+U and logs `mode=split`; auto unregisters U and logs `mode=auto`. The choice persists in `settings.json`. | log lines; `settings.json` |
 | 37 | Text module toggle | turn Text off on the Modules page | PASS. The Text tab disappears, the segmented bar stays for the other modules, and the setting persists. | `settings.json`; screenshot |
 | 38 | Settings survive an upgrade | start 0.1.5 against a 0.1.3 settings file that has no `text` flag or `shortcut_mode` | PASS. Language (np), channel (beta), Nepal date, autostart off and converter off all survived; the new module defaulted on and the mode to auto. | state read from the running app |
+| 39 | Preeti glyph forms | convert प्र, रु, रू, क्र, राष्ट्र, प्रि and replay each through the reference converter | PASS. Output uses `k|`, `?`, `¿`, `s|`, `/fi6«`, `lk|`; every pair round-trips and the oracle reads back the same word. The old `K/` and `/'` forms are gone. | `crates/core/tests/preeti.rs`; `data/preeti-corpus.tsv` |
 
 ## How the midnight check was run
 

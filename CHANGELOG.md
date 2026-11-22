@@ -3,6 +3,19 @@
 All notable changes are recorded here. The format follows Keep a Changelog, and
 the project uses Semantic Versioning.
 
+## [0.1.6] - 2026-11-22
+
+### Fixed
+
+- Preeti output for a consonant followed by र now uses the ra-foot key (`k|`,
+  `s|`, `6«`) instead of a half letter plus a separate र, which the font draws
+  with a visible halant. Retroflex letters use their own foot glyph.
+- रु and रू use their dedicated glyphs (`?`, `¿`) instead of र plus a detached
+  matra.
+- The short-i after a ra-foot cluster now lands after the whole cluster, so प्रि
+  is `lk|` and ट्रि is `l6«`.
+- The corpus grew to 100 pairs and covers these forms.
+
 ## [0.1.5] - 2026-11-22
 
 ### Fixed
