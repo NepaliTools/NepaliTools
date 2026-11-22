@@ -213,8 +213,16 @@ fn punctuation_uses_preeti_keys() {
 }
 
 #[test]
-fn legacy_variants_from_a_real_document() {
-    for (preeti, unicode) in [
+fn half_pha_joins_with_an_explicit_halant() {
+    // `ˆ` is a circumflex in Sagarmatha, not a half फ; `km\` is the form that
+    // draws आफ्नो correctly.
+    pair("cfkm\\gf]", "आफ्नो");
+    assert_eq!(unicode_to_preeti("आफ्नो").text, "cfkm\\gf]");
+    pair("cfkm\\g}", "आफ्नै");
+}
+
+#[test]
+fn legacy_variants_from_a_real_document() {    for (preeti, unicode) in [
         (";}¢flGts", "सैद्धान्तिक"),
         ("sÝf", "कठ्ठा"),
         ("gl;{·", "नर्सिङ"),

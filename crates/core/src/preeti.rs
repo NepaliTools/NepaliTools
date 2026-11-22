@@ -496,6 +496,12 @@ fn full_of(ch: char) -> Option<String> {
 }
 
 fn half_of(ch: char) -> String {
+    // फ has no half key that the legacy fonts draw as a half letter. `ˆ` and the
+    // private-use key map to फ् in some tables, but Sagarmatha draws ˆ as a
+    // circumflex, so the letter plus an explicit halant is the form that joins.
+    if ch == 'फ' {
+        return "km\\".to_string();
+    }
     let halant = format!("{ch}\u{094d}");
     if let Some(key) = reverse_table().get(halant.as_str()) {
         return key.to_string();

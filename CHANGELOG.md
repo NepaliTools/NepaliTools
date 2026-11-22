@@ -3,6 +3,14 @@
 All notable changes are recorded here. The format follows Keep a Changelog, and
 the project uses Semantic Versioning.
 
+## [0.1.9] - 2026-11-22
+
+### Fixed
+
+- Words with a half फ were written with `ˆ`, which Sagarmatha draws as a
+  circumflex, not as फ्. They now use the letter plus an explicit halant
+  (`cfkm\gf]`), which joins correctly: आफ्नो, आफ्नै.
+
 ## [0.1.8] - 2026-11-22
 
 ### Changed

@@ -72,6 +72,7 @@ plus `cargo build --release -p nepalitoolkit` for the portable executable.
 | 41 | Legacy font variants | convert words that use the report's alternate keys | PASS. ¬ Ò ¢ Ý › < Ø Œ · ∙ ÷ Ü ˆ ¥ æ Æ all produce the word they appear in (भद्रपुर, सैद्धान्तिक, कठ्ठा, केन्द्र, ट्याक्टर, महत्व, नर्सिङ). 26 rows are marked `preeti` in the corpus. | tests; corpus |
 | 42 | Punctuation and digits | convert नेपाल/काठमाडौं, २०%, (क), १+२, नमस्ते। and २०८३ | PASS. Output uses `÷`, `Ü`, `-` `_`, `±`, `.` and Preeti digit keys, so a slash no longer renders as र or a percent as ५. | tests |
 | 43 | Text box fonts | open the Text module in both directions on a machine with Sagarmatha and Kalimati installed | PASS. The Preeti box draws with Sagarmatha and reads as Nepali (`k|sfz` appears as प्रकाश); the Unicode box draws with Kalimati. The labels still distinguish the sides. | `docs/evidence/panel-text-fonts.png`, `panel-text-fonts-reverse.png` |
+| 44 | Half फ renders | convert आफ्नो and आफ्नै, then look at the Preeti box | PASS. The output is `cfkm\gf]` and renders as आफ्नो in Sagarmatha. The previous `ˆ` key drew a circumflex, not फ्. | `docs/evidence/panel-text-afno.png`; test |
 
 ## How the midnight check was run
 
