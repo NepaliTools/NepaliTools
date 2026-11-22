@@ -43,3 +43,29 @@ powershell -ExecutionPolicy Bypass -File tools\fetch-bs-data.ps1
 
 The script fails on any hash mismatch, epoch drift, impossible month length, year without
 365-366 days, or fixture mismatch.
+
+## Preeti key table
+
+`preeti-map.tsv` maps one Preeti key to one Devanagari value. Preeti is a legacy
+font encoding, so the table is factual key-layout data rather than text from a
+particular document.
+
+- Source: https://github.com/dpr4dhan/preeti-to-unicode, `preeti-to-unicode.js`,
+  version 2.0.0, MIT. Retrieved 2026-11-22.
+  sha256 `8f8bf3c3bfcdac0660c7a8c9c0c5a1f6e0f3c797c98a8e869f71a83c57817c50`.
+  Its table follows Shuvayatra/preeti and npttf2utf, which are GPL-3.0; only the
+  factual key values were taken, and the conversion rules in `crates/core` are
+  written for this project rather than ported.
+- Cross-check: https://github.com/omzeekarn/nepali-text (MIT) and
+  https://github.com/roseateros/unicode-to-preeti (MIT) for the shape of the
+  reverse direction.
+- Verification oracle: `nepali-unicoder` 0.3.0 (MIT), used only during
+  development to check Preeti-to-Unicode output. It is not a dependency and is
+  not shipped.
+
+Rows that the oracle did not confirm were dropped rather than guessed, so the
+table covers the keys that round-trip in practice. `data/preeti-corpus.tsv`
+records 81 pairs. Each was checked against the oracle where the oracle covers the
+case; the rows where Preeti needs a convention of this project (the independent
+ऐ and mixed English) are marked `unicode` in the file. `cargo test -p npt-core
+--test preeti` replays them in both directions.

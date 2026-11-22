@@ -28,16 +28,33 @@ date, for example `मंसिर ५, २०८३ - Saturday`. A left click o
 the panel, which always shows today's full BS date, the weekday and the AD
 equivalent.
 
-The app ships two modules:
+The app ships three modules:
 
 - Today shows the date and a copy button.
 - Converter translates a Gregorian date to BS and a BS date to Gregorian, live in
   both directions.
+- Text converts Nepali text between the legacy Preeti encoding and Unicode
+  Devanagari, live in both directions.
 
-The Modules page turns either module off. Settings holds the interface language
+The Modules page turns any module off. Settings holds the interface language
 (English by default, Nepali available), a switch that uses Nepal time
 (UTC+05:45) instead of the machine's date, the autostart toggle, and the update
 channel with a Check for updates button.
+
+### Text, Preeti and Unicode
+
+Preeti is a legacy Nepali font that stores Devanagari on ordinary Latin keys, so
+text typed in it reads `g]kfn` anywhere the font is missing. The Text module
+converts that encoding to Unicode and back: type or paste in either box and the
+other follows. Characters Preeti cannot write are left as they are and listed
+under the box instead of being guessed.
+
+`Ctrl+Alt+P` converts the selection in any other application in place: the app
+copies it, converts it, pastes it back and restores your clipboard. In auto mode
+the direction follows the script of the selection. The Text module can switch to
+two explicit shortcuts instead, `Ctrl+Alt+P` for Unicode to Preeti and
+`Ctrl+Alt+U` for the reverse. The shortcut does not run inside the panel, and it
+only preserves the text part of the clipboard.
 
 The Nepali date always renders in Nepali, with Devanagari digits and Nepali month
 names, in both interface languages. The weekday and the Gregorian date follow the
@@ -51,11 +68,11 @@ follows the stable, beta or alpha channel you pick.
 
 <p align="center">
   <img src="docs/evidence/panel-converter-en.png" width="250" alt="BS to AD and AD to BS converter with a Devanagari Bikram Sambat date">
-  <img src="docs/evidence/panel-modules-off.png" width="250" alt="Modules page enabling and disabling tray tools">
+  <img src="docs/evidence/panel-text-unicode.png" width="250" alt="Text module converting Preeti g]kfn to नेपाल">
   <img src="docs/evidence/panel-settings-en.png" width="250" alt="Settings page with language, Nepal date override, start with Windows and Check for updates">
 </p>
 
-<p align="center"><em>Convert, Modules and Settings. The tray tooltip shows the full date, for example मंसिर ५, २०८३ - Saturday.</em></p>
+<p align="center"><em>Convert, Text and Settings. The tray tooltip shows the full date, for example मंसिर ५, २०८३ - Saturday.</em></p>
 
 ## What Bikram Sambat is
 
@@ -69,17 +86,24 @@ table it ships as much as on its code. NepaliToolkit supports BS 1975 to 2100,
 which is 1918-04-13 to 2044-04-13 in the Gregorian calendar. Years after 2090
 have no published gazette yet, and the interface marks them as projected.
 
+Preeti conversion is checked against a corpus of 81 pairs in
+`data/preeti-corpus.tsv`. Each pair was checked against an independent
+MIT-licensed converter where that converter covers the case; rows marked as
+extensions are explained in the file. `cargo test` replays each one in both
+directions. The key table is factual layout data; its source and hash are in
+`data/SOURCES.md`.
+
 ## Install
 
-The 0.1.3 alpha ships as a per-user installer and a portable zip for Windows 10
+The 0.1.4 alpha ships as a per-user installer and a portable zip for Windows 10
 and 11, 64-bit.
 
-- [Installer](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.3-alpha/NepaliToolkit-0.1.3-alpha-win64-setup.exe)
+- [Installer](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.4-alpha/NepaliToolkit-0.1.4-alpha-win64-setup.exe)
   installs for the current user, adds a Start Menu shortcut and an uninstaller,
   and needs no administrator.
-- [Portable zip](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.3-alpha/NepaliToolkit-0.1.3-alpha-win64-portable.zip)
+- [Portable zip](https://github.com/NepaliTools/NepaliTools/releases/download/v0.1.4-alpha/NepaliToolkit-0.1.4-alpha-win64-portable.zip)
   extracts and runs from any folder.
-- [Release notes and checksums](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.3-alpha)
+- [Release notes and checksums](https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.4-alpha)
   cover both.
 - The build is unsigned, so Windows may show "Windows protected your PC". Choose
   More info, then Run anyway.
@@ -89,13 +113,13 @@ need the
 [Evergreen runtime](https://developer.microsoft.com/microsoft-edge/webview2/).
 The installer embeds the bootstrapper.
 
-0.1.3 adds the update check and the channel choice. Open Settings, pick Stable,
-Beta or Alpha, then press Check for updates: the app reads that channel's signed
-manifest from nepalitools.pages.dev, downloads the signed installer from GitHub
-Releases if a newer build exists, installs it quietly and restarts. There is no
-background check. The 0.1.0 alpha cannot update itself, so install once; from then
-on the button handles new builds. The portable build tells you to download the new
-zip instead of replacing itself.
+0.1.4 adds the Text module and the in-place shortcut. Install it once; from then
+on Settings has Check for updates. Open Settings, pick Stable, Beta or Alpha, then
+press Check: the app reads that channel's signed manifest from
+nepalitools.pages.dev, downloads the signed installer from GitHub Releases if a
+newer build exists, installs it quietly and restarts. There is no background
+check. The portable build tells you to download the new zip instead of replacing
+itself.
 
 Every release is published to alpha first. Moving one to beta or stable is a
 manifest change, not a rebuild, so stable never receives bytes that did not first
@@ -164,7 +188,6 @@ and the tooltip carries the full date.
 Yes. Both directions use the bundled table. Conversion makes no network calls.
 
 ### How do updates work?
-
 Open Settings, choose a channel, then press Check for updates. The app fetches
 that channel's signed manifest, and if a newer build exists it downloads the
 signed installer, verifies the signature and installs it quietly. The app
@@ -178,6 +201,23 @@ Alpha gets every build. Beta and stable receive the same signed installer later,
 when it has been promoted, so they always lag alpha by at least one release.
 Channels share one version line: a build promoted to stable keeps its version
 number. New installs start on alpha because every published build is an alpha.
+
+### How do I convert Preeti text to Unicode?
+
+Open the Text tab, keep Preeti to Unicode selected, paste the text and copy the
+result. It also works the other way, and it runs offline. To convert a selection
+in another app, press `Ctrl+Alt+P`.
+
+### Does the shortcut change my clipboard?
+
+It saves the clipboard text, copies your selection, converts it, pastes it back
+and restores what was there. Rich content on the clipboard, such as an image, is
+not preserved; only text is.
+
+### Why does the shortcut say it cannot run in the panel?
+
+Injecting keys into the panel's own webview would paste into the converter box,
+so the shortcut refuses there. Use the Text tab instead.
 
 ### Which years are supported?
 
@@ -220,7 +260,7 @@ More reading: [GLOSSARY](GLOSSARY.md), [ACCEPTANCE](ACCEPTANCE.md),
 
 ## Status
 
-0.1.3 alpha. Windows only, unsigned, and used daily by its author. The project is
+0.1.4 alpha. Windows only, unsigned, and used daily by its author. The project is
 not affiliated with the Government of Nepal or any calendar authority.
 
 ## License

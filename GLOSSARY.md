@@ -54,6 +54,45 @@ _Avoid_: menubar, system tray, status bar
 The module that translates a BS date to an AD date, or the reverse.
 _Avoid_: date converter
 
+**Text**:
+The module that converts Nepali text between Preeti keys and Unicode Devanagari,
+and holds the shortcut mode.
+_Avoid_: font converter, unicode tool
+
+## Text encoding
+
+**Preeti**:
+A legacy Nepali font that draws Devanagari glyphs on ordinary ASCII keys. The
+bytes are Latin letters, so text typed in Preeti looks like `g]kfn` anywhere the
+font is absent. Preeti is an encoding here, not a font file.
+_Avoid_: Preeti font, legacy font (when the encoding is meant)
+
+**Unicode handling**:
+Unicode stores the Devanagari characters themselves, in logical order, so the
+text renders anywhere without a special font. This project converts to and from
+Unicode; it never depends on a font being installed.
+_Avoid_: UTF-8 (that is an encoding of Unicode, not the characters)
+
+**Matra**:
+A dependent vowel sign attached to a consonant, such as the `ा` in `का`. Preeti
+types some matras before their consonant.
+_Avoid_: vowel (that is the independent letter)
+
+**Reph**:
+The `र्` written above a consonant in words such as धर्म. Preeti types it after
+the consonant it belongs to (`{`), Unicode stores it before.
+_Avoid_: reph mark, half ra
+
+**Half form**:
+A consonant with an explicit halant, such as `क्`, used as the first member of a
+cluster. Preeti has dedicated uppercase keys for many of them.
+_Avoid_: half letter, conjunct (that is the whole cluster)
+
+**In-place conversion**:
+Replacing the selected text in another application with its converted form, using
+the clipboard and synthetic keystrokes. The panel is never a target.
+_Avoid_: global replace, hotkey conversion
+
 ## Display
 
 **Devanagari digits**:

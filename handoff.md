@@ -4,14 +4,16 @@ Updated 2026-11-22. Toolkit `main` and site `main`; run `git log -1` for the
 exact heads.
 
 A Windows tray app for Bikram Sambat: today's Nepali date in Devanagari on the
-icon, a two-way BS and AD converter, English or Nepali interface, no telemetry.
-Rust core with no dependencies, Tauri 2 host, plain HTML and CSS panel.
+icon, a BS and AD converter, a Preeti and Unicode text converter, English or
+Nepali interface, no telemetry. Rust core with no dependencies, Tauri 2 host,
+plain HTML and CSS panel.
 
 ## Released
 
 | Version | Channel | Date | Notes |
 |---|---|---|---|
-| 0.1.3 | alpha | 2026-11-22 | Update channels: Stable, Beta, Alpha. Current release. |
+| 0.1.4 | alpha | 2026-11-22 | Text module, in-place shortcut, channel dropdown fix. Current. |
+| 0.1.3 | alpha | 2026-11-22 | Update channels: Stable, Beta, Alpha. |
 | 0.1.2 | alpha | 2026-11-21 | Manual update check, signed installer, quiet install. |
 | 0.1.0 | alpha | 2026-11-21 | First public alpha. No updater. |
 
@@ -27,10 +29,7 @@ Each release is a GitHub prerelease with a signed NSIS installer, a portable zip
 - Install downloads the signed installer from GitHub Releases, verifies it
   against the public key in `crates/host/tauri.conf.json`, then runs the NSIS
   updater quietly (`/S /R`) and restarts the app.
-- `requireSignedVersion` binds the version in the signature to the manifest, so a
-  tampered manifest cannot pair a new version with an old installer.
-- Portable builds are marked in the card and never offered the installer. They
-  cannot replace themselves.
+- Portable builds never install; the card says to download the new zip.
 - `updates/latest.json` mirrors alpha for 0.1.2, the first build with an updater
   and no channel setting.
 
@@ -42,8 +41,25 @@ powershell -ExecutionPolicy Bypass -File tools\promote.ps1 -From alpha -To beta
 powershell -ExecutionPolicy Bypass -File tools\promote.ps1 -From beta -To stable
 ```
 
-An empty channel answers 404, which the app shows as "No Beta release yet". That
-is a normal state, not an error.
+An empty channel answers 404, which the app shows as "No Beta release yet".
+
+## Text module
+
+- `npt_core::preeti` converts both ways: `preeti_to_unicode`, `unicode_to_preeti`,
+  `detect`. The key table is `data/preeti-map.tsv`, vendored from an MIT source
+  and filtered to keys an independent converter confirmed. Provenance is in
+  `data/SOURCES.md`.
+- `data/preeti-corpus.tsv` holds 81 pairs. `crates/core/tests/preeti.rs` replays
+  them; rows marked `unicode` are extensions (mixed English, independent ऐ) and
+  are skipped by the reverse round-trip.
+- Unrepresentable characters are left in place and returned in
+  `Conversion.unconverted`; the panel lists them.
+- The in-place shortcut copies the selection, converts, pastes and restores the
+  clipboard. It waits for the hotkey modifiers to be released first, or the
+  target sees Alt+C. It refuses while the panel has focus. Only clipboard text is
+  restored.
+- Mode lives in `settings.shortcut_mode` (`auto` or `split`). Auto registers
+  `Ctrl+Alt+P`; split adds `Ctrl+Alt+U`.
 
 ## Releasing
 
@@ -55,70 +71,56 @@ password), `gh` with `repo` scope, and the site checkout at `..\nepalitools-site
 2. Write `docs/release-notes-<version>-<channel>.md`.
 3. Update install links in `README.md`, `wiki/Installation.md` and the site.
 4. `cargo test --workspace`.
-5. Commit before releasing, because `gh release create` tags the remote default
-   branch tip, not the local working tree.
-6. Run `tools\release.ps1 -Version 0.1.4 -Channel alpha`. It builds, signs,
+5. Commit and push **before** releasing. `gh release create` tags the remote
+   default branch tip, not the working tree; if the tag lands on the previous
+   commit, move it with
+   `gh api --method PATCH repos/NepaliTools/NepaliTools/git/refs/tags/<tag> -f sha=<sha> -F force=true`.
+6. Run `tools\release.ps1 -Version 0.1.5 -Channel alpha`. It builds, signs,
    writes the manifest and checksums, creates the release, and deploys the site.
-   `-SkipPublish` and `-SkipSiteDeploy` split the steps.
 
 The updater key is the trust root. Losing it means existing installs cannot
-verify a new release and everyone reinstalls by hand. Keep an offline backup and
-never commit it.
-
-## Unreleased, waiting for a batch
-
-- Channel dropdown rows now follow the theme; the popup drew white rows with
-  light text, so Stable and Beta were unreadable in dark mode. Fixed in
-  `crates/host/ui/styles.css`, verified against the open popup. No release cut.
-
-Releases are batched: keep changes under `[Unreleased]` in `CHANGELOG.md` and cut
-a version only when several changes are worth shipping.
+verify a new release. Keep an offline backup and never commit it.
 
 ## Next
 
-- Promote a settled 0.1.3 to beta, then stable, with `promote.ps1`.
-- The installer closes after copying instead of showing a finish page. Fix in
-  the NSIS hook if it keeps bothering people.
-- No code signing. The updater signature proves the project built the installer;
-  it does not satisfy SmartScreen.
-- macOS menu-bar build is the next milestone in `ROADMAP.md`. The core is
-  platform neutral; the host is Windows only. Signing needs a Mac.
+- Promote a settled 0.1.4 to beta, then stable, with `promote.ps1`.
+- The installer closes after copying instead of showing a finish page.
+- No code signing. The updater signature is not SmartScreen trust.
+- Only Preeti is supported. Kantipur, Sagarmatha and the other legacy fonts need
+  their own tables; the corpus and rules would carry over.
+- macOS menu-bar build is the next milestone in `ROADMAP.md`. Signing needs a Mac.
 - The GitHub wiki repo was never created, so `wiki/*.md` is only in the repo.
-  Save one page in the web UI, then clone `NepaliTools.wiki.git` and push the
-  pages.
-- Years after 2090 are single-source projections and stay labelled as such until
-  a gazette exists.
+  Save one page in the web UI, then push the pages.
+- Years after 2090 are single-source projections.
 
 ## Where things are
 
-- Core engine: `crates/core` (conversion, formatting, Devanagari digits, tests).
-- Host: `crates/host/src/main.rs` (tray, settings, commands, updater), panel in
-  `crates/host/ui`.
-- Data: `data/bs-months.csv` plus `data/SOURCES.md`; refresh with
-  `tools/fetch-bs-data.ps1`, the only build-time network step.
+- Core: `crates/core` (`lib.rs` for dates, `preeti.rs` for text), tests in
+  `crates/core/tests/preeti.rs`.
+- Host: `crates/host/src/main.rs` (tray, settings, commands, updater, in-place
+  shortcut), panel in `crates/host/ui`.
+- Data: `data/bs-months.csv`, `data/preeti-map.tsv`, `data/preeti-corpus.tsv`,
+  provenance in `data/SOURCES.md`.
 - Evidence: `docs/evidence/`, indexed by `ACCEPTANCE.md`.
-- Release mechanics: `docs/RELEASING.md`.
-- Brand: `assets/brand/BRAND.md`.
+- Release mechanics: `docs/RELEASING.md`. Decisions: `docs/adr/`.
 
 ## Machine notes
 
 These cost hours once, all on this Windows box:
 
 - PowerShell 5.1 `ConvertTo-Json -Depth` hangs once an object carries a multi-KB
-  string. `tools/release.ps1` encodes the manifest by hand instead.
-- `Compress-Archive` was replaced by `ZipFile::CreateFromDirectory`; it stalls on
-  a 5 MB folder.
-- Use `certutil -hashfile <file> SHA256`; `Get-FileHash` is fine but the release
-  script keeps one hashing path.
+  string. `tools/release.ps1` encodes the manifest by hand.
+- `Compress-Archive` was replaced by `ZipFile::CreateFromDirectory`.
+- Use `certutil -hashfile <file> SHA256`; `Get-FileHash` is avoided.
 - The panel cannot be driven by CDP unless it starts with
-  `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9223`. A normal
-  autostart launch has no port.
-- Capturing the panel: a visible console steals focus and the panel hides.
-  Run `tools\ui-step.ps1` with `-WindowStyle Hidden`. `tools\capture-panel.ps1`
-  re-shows a hidden panel, which resets its scroll to the top.
-- The settings screen is taller than the panel. To photograph the update card,
-  hide the rows above it with inline styles, then capture.
-- `python -m http.server` fails to bind some ports here (WinError 10013). 8811
-  and 8813 work.
-- WebView2 `157.0.4341.x`, 125% scaling, Windows 11 26200. The tray badge is
-  chosen from the scale, and the log prints which asset it picked.
+  `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9223`.
+- Capturing the panel: a visible console steals focus and the panel hides. Run
+  `tools\ui-step.ps1` with `-WindowStyle Hidden`.
+- Global chord injection needs the modifiers released first; `wait_for_modifiers`
+  handles it. Injecting while Alt is held produces Alt+C and copies nothing.
+- Raising another window from a background script needs AttachThreadInput plus
+  SetForegroundWindow; a plain click only works if the target is already on top.
+- Windows 11 Notepad is tabbed. Opening a file may activate a tab in the user's
+  existing window, so any scripted typing must check the exact window title first.
+- `Get-Process | Where MainWindowTitle` can match a launcher PID that exits; find
+  windows by title, not by the PID returned from Start-Process.

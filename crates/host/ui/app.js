@@ -52,6 +52,27 @@ const STR = {
     updateFailed: "जाँच्न सकिएन। इन्टरनेट जाँच्नुहोस्।",
     updatePortable: "पोर्टेबल संस्करण। नयाँ जिप रिलिज पृष्ठबाट लिनुहोस्।",
     portable: "पोर्टेबल",
+    tabText: "पाठ",
+    modTextTitle: "पाठ",
+    modTextSub: "Preeti र Unicode बीच दुईतर्फी",
+    dirToUnicode: "Preeti → Unicode",
+    dirToPreeti: "Unicode → Preeti",
+    textInPreeti: "Preeti पाठ",
+    textInUnicode: "Unicode पाठ",
+    textOutPreeti: "Preeti पाठ",
+    textOutUnicode: "Unicode पाठ",
+    textSwap: "साट्नु",
+    textUnconverted: "Preeti मा लेख्न नमिल्ने अक्षर: {chars}",
+    textModeTitle: "सर्टकट",
+    textModeSub: "छानिएको पाठ जहाँसुकै परिवर्तन गर्ने",
+    textShortcutAuto: "Ctrl+Alt+P: चयन गरेको पाठ स्वतः दिशा पहिचान गरी परिवर्तन हुन्छ।",
+    textShortcutSplit: "Ctrl+Alt+P: Unicode बाट Preeti। Ctrl+Alt+U: Preeti बाट Unicode।",
+    textShortcutMissing: "सर्टकट उपलब्ध छैन: {error}",
+    textConverted: "{chars} अक्षर परिवर्तन भयो।",
+    textPanelFocused: "प्यानलमा सर्टकट चल्दैन। माथिको बाकसमा पाठ हाल्नुहोस्।",
+    textNoSelection: "पहिले पाठ छान्नुहोस्, अनि सर्टकट थिच्नुहोस्।",
+    textUnchanged: "परिवर्तन गर्नुपर्ने केही भेटिएन।",
+    textFailed: "चयन पढ्न सकिएन।",
   },
   en: {
     headerToday: "Today",
@@ -102,6 +123,27 @@ const STR = {
     updateFailed: "Could not check. You may be offline.",
     updatePortable: "Portable build. Download the new zip from the release page.",
     portable: "portable",
+    tabText: "Text",
+    modTextTitle: "Text",
+    modTextSub: "Preeti and Unicode, both directions",
+    dirToUnicode: "Preeti → Unicode",
+    dirToPreeti: "Unicode → Preeti",
+    textInPreeti: "Preeti text",
+    textInUnicode: "Unicode text",
+    textOutPreeti: "Preeti text",
+    textOutUnicode: "Unicode text",
+    textSwap: "Swap",
+    textUnconverted: "Characters Preeti cannot write: {chars}",
+    textModeTitle: "Shortcut",
+    textModeSub: "Convert the selection anywhere",
+    textShortcutAuto: "Ctrl+Alt+P converts the selection and picks the direction.",
+    textShortcutSplit: "Ctrl+Alt+P: Unicode to Preeti. Ctrl+Alt+U: Preeti to Unicode.",
+    textShortcutMissing: "Shortcut unavailable: {error}",
+    textConverted: "Converted {chars} characters.",
+    textPanelFocused: "The shortcut does not run inside the panel. Use the box above.",
+    textNoSelection: "Select text first, then press the shortcut.",
+    textUnchanged: "Nothing to convert.",
+    textFailed: "Could not read the selection.",
   },
 };
 
@@ -115,6 +157,10 @@ let updateStatus = "idle";
 let update = null;
 let updateDownloaded = 0;
 let updateTotal = 0;
+let textDirection = "to_unicode";
+let textUnconverted = [];
+let textStatus = "";
+let textTimer = 0;
 
 const $ = (id) => document.getElementById(id);
 const copyOf = () => STR[lang];
@@ -204,9 +250,12 @@ function render() {
 
   $("seg-today").textContent = s.tabToday;
   $("seg-converter").textContent = s.tabConvert;
+  $("seg-text").textContent = s.tabText;
   $("seg-today").hidden = !S.modules.today;
   $("seg-converter").hidden = !S.modules.converter;
-  $("segmented").hidden = !(S.modules.today && S.modules.converter);
+  $("seg-text").hidden = !S.modules.text;
+  const enabled = [S.modules.today, S.modules.converter, S.modules.text].filter(Boolean).length;
+  $("segmented").hidden = enabled < 2;
 
   $("lbl-ad").textContent = s.adLabel;
   $("lbl-year").textContent = s.year;
@@ -225,6 +274,8 @@ function render() {
   $("mod-today-sub").textContent = s.modTodaySub;
   $("mod-conv-title").textContent = s.modConvTitle;
   $("mod-conv-sub").textContent = s.modConvSub;
+  $("mod-text-title").textContent = s.modTextTitle;
+  $("mod-text-sub").textContent = s.modTextSub;
   $("modules-back").textContent = s.back;
 
   $("settings-title").textContent = s.settingsTitle;
@@ -252,6 +303,7 @@ function render() {
   $("set-autostart").checked = S.autostart;
   $("mod-today").checked = S.modules.today;
   $("mod-converter").checked = S.modules.converter;
+  $("mod-text").checked = S.modules.text;
   $("ad-input").min = S.ad_min;
   $("ad-input").max = S.ad_max;
 
@@ -259,6 +311,7 @@ function render() {
   rebuildMonths();
   rebuildDays();
   renderUpdates();
+  renderText();
   show(screen);
 }
 
@@ -334,12 +387,114 @@ async function installUpdate() {
   }
 }
 
+function renderText() {
+  if (!S) return;
+  const s = copyOf();
+  const toUnicode = textDirection === "to_unicode";
+  $("dir-to-unicode").textContent = s.dirToUnicode;
+  $("dir-to-preeti").textContent = s.dirToPreeti;
+  $("dir-to-unicode").classList.toggle("is-active", toUnicode);
+  $("dir-to-preeti").classList.toggle("is-active", !toUnicode);
+  $("text-in-label").textContent = toUnicode ? s.textInPreeti : s.textInUnicode;
+  $("text-out-label").textContent = toUnicode ? s.textOutUnicode : s.textOutPreeti;
+  $("text-in").placeholder = toUnicode ? "g]kfn" : "नेपाल";
+  $("text-copy").textContent = s.copy;
+  $("text-swap").textContent = s.textSwap;
+  $("text-mode-title").textContent = s.textModeTitle;
+  $("text-mode-sub").textContent = s.textModeSub;
+
+  const mode = $("text-mode");
+  mode.value = S.shortcut_mode;
+  const note = S.shortcut_mode === "split" ? s.textShortcutSplit : s.textShortcutAuto;
+  $("text-shortcut-note").textContent = S.text_shortcut_ok
+    ? note
+    : s.textShortcutMissing.replace("{error}", S.text_shortcut_error || "");
+
+  $("text-unconverted").hidden = textUnconverted.length === 0;
+  $("text-unconverted").textContent = textUnconverted.length
+    ? s.textUnconverted.replace("{chars}", textUnconverted.join(" "))
+    : "";
+  $("text-status").hidden = !textStatus;
+  $("text-status").textContent = textStatus;
+}
+
+async function convertText() {
+  const value = $("text-in").value;
+  if (!value) {
+    $("text-out").value = "";
+    textUnconverted = [];
+    renderText();
+    return;
+  }
+  try {
+    const result = await invoke("convert_text", { text: value, direction: textDirection });
+    $("text-out").value = result.text;
+    textUnconverted = result.unconverted || [];
+  } catch (error) {
+    console.error(error);
+    textUnconverted = [];
+  }
+  renderText();
+}
+
+function scheduleText() {
+  textStatus = "";
+  window.clearTimeout(textTimer);
+  textTimer = window.setTimeout(convertText, 60);
+}
+
+function setDirection(direction) {
+  if (textDirection === direction) return;
+  textDirection = direction;
+  textStatus = "";
+  renderText();
+  convertText();
+}
+
+function swapText() {
+  const input = $("text-in").value;
+  $("text-in").value = $("text-out").value;
+  $("text-out").value = input;
+  textDirection = textDirection === "to_unicode" ? "to_preeti" : "to_unicode";
+  textStatus = "";
+  renderText();
+  convertText();
+}
+
+function showTextShortcut(report) {
+  const s = copyOf();
+  if (report.code === "converted") {
+    textStatus = s.textConverted.replace("{chars}", String(report.chars));
+    textUnconverted = [];
+  } else if (report.code === "partial") {
+    textUnconverted = report.unconverted || [];
+    textStatus = s.textConverted.replace("{chars}", String(report.chars));
+  } else {
+    const messages = {
+      no_selection: s.textNoSelection,
+      panel_focused: s.textPanelFocused,
+      unchanged: s.textUnchanged,
+      failed: s.textFailed,
+    };
+    textStatus = messages[report.code] || "";
+  }
+  show("text");
+  renderText();
+}
+
+function firstScreen() {
+  if (S.modules.today) return "today";
+  if (S.modules.converter) return "converter";
+  if (S.modules.text) return "text";
+  return "empty";
+}
+
 function show(next) {
   if (!S) return;
   if (next === "today" && !S.modules.today) next = S.modules.converter ? "converter" : "empty";
   if (next === "converter" && !S.modules.converter) next = S.modules.today ? "today" : "empty";
-  if (next === "empty" && S.modules.today) next = "today";
-  if (next === "empty" && S.modules.converter) next = "converter";
+  if (next === "text" && !S.modules.text) next = firstScreen();
+  if (next === "empty" && firstScreen() !== "empty") next = firstScreen();
   screen = next;
   const scroll = document.getElementById("main");
   if (scroll) scroll.scrollTop = 0;
@@ -441,6 +596,7 @@ async function refresh() {
 function wire() {
   $("seg-today").addEventListener("click", () => show("today"));
   $("seg-converter").addEventListener("click", () => show("converter"));
+  $("seg-text").addEventListener("click", () => show("text"));
   $("nav-modules").addEventListener("click", () => show("modules"));
   $("nav-settings").addEventListener("click", () => show("settings"));
   $("update-check").addEventListener("click", checkForUpdate);
@@ -452,8 +608,8 @@ function wire() {
     renderUpdates();
   });
   $("empty-modules").addEventListener("click", () => show("modules"));
-  $("modules-back").addEventListener("click", () => show(S.modules.today ? "today" : "converter"));
-  $("settings-back").addEventListener("click", () => show(S.modules.today ? "today" : "converter"));
+  $("modules-back").addEventListener("click", () => show(firstScreen()));
+  $("settings-back").addEventListener("click", () => show(firstScreen()));
   $("quit").addEventListener("click", () => invoke("quit_app"));
 
   $("copy-today").addEventListener("click", () =>
@@ -508,6 +664,21 @@ function wire() {
     S = await invoke("set_module", { module: "converter", enabled: event.target.checked });
     render();
   });
+  $("mod-text").addEventListener("change", async (event) => {
+    S = await invoke("set_module", { module: "text", enabled: event.target.checked });
+    render();
+  });
+
+  $("dir-to-unicode").addEventListener("click", () => setDirection("to_unicode"));
+  $("dir-to-preeti").addEventListener("click", () => setDirection("to_preeti"));
+  $("text-in").addEventListener("input", scheduleText);
+  $("text-swap").addEventListener("click", swapText);
+  $("text-copy").addEventListener("click", () => copyText($("text-out").value, $("text-copy")));
+  $("text-mode").addEventListener("change", async (event) => {
+    S = await invoke("set_shortcut_mode", { mode: event.target.value });
+    textStatus = "";
+    render();
+  });
 
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape") invoke("hide_panel");
@@ -531,6 +702,7 @@ async function start() {
       updateTotal = total || 0;
       if (updateStatus === "installing") renderUpdates();
     });
+    await listen("text-shortcut", (event) => showTextShortcut(event.payload));
     await listen("navigate", (event) => {
       show(event.payload);
     });

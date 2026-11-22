@@ -17,6 +17,7 @@
       <nav class="segmented" id="segmented">
         <button class="seg is-active" id="seg-today" data-screen="today">आज</button>
         <button class="seg" id="seg-converter" data-screen="converter">परिवर्तन</button>
+        <button class="seg" id="seg-text" data-screen="text">पाठ</button>
       </nav>
 
       <main id="main">
@@ -71,6 +72,43 @@
           <p class="note" id="projected-note" hidden></p>
         </section>
 
+        <section class="screen" id="screen-text">
+          <div class="directions" id="text-directions">
+            <button class="dir is-active" id="dir-to-unicode" data-direction="to_unicode">Preeti → Unicode</button>
+            <button class="dir" id="dir-to-preeti" data-direction="to_preeti">Unicode → Preeti</button>
+          </div>
+
+          <label class="field">
+            <span class="field-label" id="text-in-label">Preeti</span>
+            <textarea id="text-in" rows="4" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+          </label>
+
+          <label class="field">
+            <span class="field-label" id="text-out-label">Unicode</span>
+            <textarea id="text-out" rows="4" readonly spellcheck="false"></textarea>
+          </label>
+
+          <p class="note" id="text-unconverted" hidden></p>
+
+          <div class="text-actions">
+            <button class="copy" id="text-copy">प्रतिलिपि</button>
+            <button class="copy" id="text-swap">साट्नु</button>
+          </div>
+          <p class="note" id="text-status" hidden></p>
+
+          <div class="row">
+            <div>
+              <div class="row-title" id="text-mode-title">सर्टकट</div>
+              <div class="row-sub" id="text-mode-sub"></div>
+            </div>
+            <select class="compact" id="text-mode">
+              <option value="auto">Auto</option>
+              <option value="split">Ctrl+Alt+P / U</option>
+            </select>
+          </div>
+          <p class="note" id="text-shortcut-note"></p>
+        </section>
+
         <section class="screen" id="screen-empty">
           <p class="row-sub" id="empty-text"></p>
           <button class="ghost" id="empty-modules"></button>
@@ -91,6 +129,13 @@
               <div class="row-sub" id="mod-conv-sub"></div>
             </div>
             <label class="switch"><input type="checkbox" id="mod-converter" /><span></span></label>
+          </div>
+          <div class="row">
+            <div>
+              <div class="row-title" id="mod-text-title">पाठ</div>
+              <div class="row-sub" id="mod-text-sub"></div>
+            </div>
+            <label class="switch"><input type="checkbox" id="mod-text" /><span></span></label>
           </div>
           <button class="ghost" data-back id="modules-back">फर्कनु</button>
         </section>

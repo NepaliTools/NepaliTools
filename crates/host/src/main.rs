@@ -34,11 +34,12 @@ mod badges;
 struct Modules {
     today: bool,
     converter: bool,
+    text: bool,
 }
 
 impl Default for Modules {
     fn default() -> Self {
-        Modules { today: true, converter: true }
+        Modules { today: true, converter: true, text: true }
     }
 }
 
@@ -49,6 +50,8 @@ struct Settings {
     nepal_date: bool,
     autostart: bool,
     channel: String,
+    /// `auto` follows the selection's script; `split` uses one key per direction.
+    shortcut_mode: String,
     modules: Modules,
 }
 
@@ -59,6 +62,7 @@ impl Default for Settings {
             nepal_date: false,
             autostart: true,
             channel: "alpha".into(),
+            shortcut_mode: "auto".into(),
             modules: Modules::default(),
         }
     }
@@ -80,6 +84,7 @@ struct AppState {
     settings: Mutex<Settings>,
     path: PathBuf,
     hotkey_error: Mutex<Option<String>>,
+    text_shortcut_error: Mutex<Option<String>>,
     shown_at: Mutex<Option<Instant>>,
 }
 
@@ -100,6 +105,7 @@ impl AppState {
             settings: Mutex::new(settings),
             path,
             hotkey_error: Mutex::new(None),
+            text_shortcut_error: Mutex::new(None),
             shown_at: Mutex::new(None),
         }
     }
@@ -276,6 +282,9 @@ struct UiState {
     version: String,
     portable: bool,
     channel: String,
+    shortcut_mode: String,
+    text_shortcut_ok: bool,
+    text_shortcut_error: Option<String>,
 }
 
 /// The installed build lives in `%LOCALAPPDATA%\NepaliToolkit`; anything else is
@@ -315,6 +324,13 @@ fn build_state(app: &AppHandle, state: &AppState) -> Result<UiState, String> {
         .map(|m| npt_core::bs_month_name(m, Lang::Np).to_string())
         .collect();
     let (first, last) = npt_core::ad_bounds();    let error = state.hotkey_error.lock().expect("hotkey lock").clone();
+    // One lock, read once: two `.lock()` temporaries in the same struct literal
+    // would both live to the end of the statement and deadlock.
+    let shortcut_error = state
+        .text_shortcut_error
+        .lock()
+        .expect("shortcut lock")
+        .clone();
     Ok(UiState {
         lang: settings.lang.clone(),
         nepal_date: settings.nepal_date,
@@ -334,6 +350,9 @@ fn build_state(app: &AppHandle, state: &AppState) -> Result<UiState, String> {
         version: app.package_info().version.to_string(),
         portable: is_portable(),
         channel: settings.channel.clone(),
+        shortcut_mode: settings.shortcut_mode.clone(),
+        text_shortcut_ok: shortcut_error.is_none(),
+        text_shortcut_error: shortcut_error,
     })
 }
 
@@ -572,6 +591,7 @@ fn set_module(
     update_settings(state.inner(), |s| match module.as_str() {
         "today" => s.modules.today = enabled,
         "converter" => s.modules.converter = enabled,
+        "text" => s.modules.text = enabled,
         _ => {}
     })?;
     build_state(&app, state.inner())
@@ -607,6 +627,265 @@ fn hide_panel(app: AppHandle) {
 fn quit_app(app: AppHandle) {
     app.exit(0);
 }
+
+// ---------------------------------------------------------------- text
+
+#[derive(Serialize, Clone)]
+struct TextResult {
+    text: String,
+    direction: String,
+    unconverted: Vec<char>,
+}
+
+/// Converts one text buffer. `direction` may be `auto`, `to_preeti` or
+/// `to_unicode`; auto follows the script of the input.
+#[tauri::command]
+fn convert_text(text: String, direction: String) -> TextResult {
+    let (converted, direction) = match direction.as_str() {
+        "to_preeti" => (npt_core::preeti::unicode_to_preeti(&text), "to_preeti"),
+        "to_unicode" => (npt_core::preeti::preeti_to_unicode(&text), "to_unicode"),
+        _ => match npt_core::preeti::detect(&text) {
+            npt_core::preeti::Direction::ToPreeti => {
+                (npt_core::preeti::unicode_to_preeti(&text), "to_preeti")
+            }
+            npt_core::preeti::Direction::ToUnicode => {
+                (npt_core::preeti::preeti_to_unicode(&text), "to_unicode")
+            }
+        },
+    };
+    TextResult {
+        text: converted.text,
+        direction: direction.into(),
+        unconverted: converted.unconverted,
+    }
+}
+
+#[tauri::command]
+fn set_shortcut_mode(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    mode: String,
+) -> Result<UiState, String> {
+    let mode = if mode == "split" { "split" } else { "auto" };
+    update_settings(state.inner(), |s| s.shortcut_mode = mode.into())?;
+    sync_text_shortcuts(&app);
+    build_state(&app, state.inner())
+}
+
+#[derive(Serialize, Clone)]
+struct TextShortcutReport {
+    code: String,
+    direction: String,
+    chars: usize,
+    unconverted: Vec<char>,
+}
+
+/// Registers the in-place shortcuts for the current mode. The panel hotkey is
+/// registered separately at startup; this only owns Ctrl+Alt+P and Ctrl+Alt+U.
+fn sync_text_shortcuts(app: &AppHandle) {
+    let mode = app.state::<AppState>().snapshot().shortcut_mode;
+    let shortcuts = app.global_shortcut();
+    let ctrl_alt = Modifiers::CONTROL | Modifiers::ALT;
+    let to_preeti = Shortcut::new(Some(ctrl_alt), Code::KeyP);
+    let to_unicode = Shortcut::new(Some(ctrl_alt), Code::KeyU);
+    let mut errors = Vec::new();
+
+    if !shortcuts.is_registered(to_preeti) {
+        if let Err(error) = shortcuts.register(to_preeti) {
+            errors.push(format!("Ctrl+Alt+P: {error}"));
+        }
+    }
+    if mode == "split" {
+        if !shortcuts.is_registered(to_unicode) {
+            if let Err(error) = shortcuts.register(to_unicode) {
+                errors.push(format!("Ctrl+Alt+U: {error}"));
+            }
+        }
+    } else if shortcuts.is_registered(to_unicode) {
+        let _ = shortcuts.unregister(to_unicode);
+    }
+
+    let state = app.state::<AppState>();
+    let mut guard = state.text_shortcut_error.lock().expect("shortcut lock");
+    if errors.is_empty() {
+        log(&format!("text shortcuts registered: mode={mode}"));
+        *guard = None;
+    } else {
+        let message = errors.join("; ");
+        log(&format!("text shortcut failed: {message}"));
+        *guard = Some(message);
+    }
+}
+
+fn report_shortcut(app: &AppHandle, code: &str, direction: &str, chars: usize, unconverted: Vec<char>) {
+    let report = TextShortcutReport {
+        code: code.into(),
+        direction: direction.into(),
+        chars,
+        unconverted,
+    };
+    let _ = app.emit("text-shortcut", report);
+    // Anything other than a clean conversion needs a human to look at it.
+    if code != "converted" {
+        open_screen(app, "text");
+    }
+}
+
+/// Copies the selection, converts it and pastes it back, then restores the
+/// clipboard. Only the text part of the clipboard is preserved.
+fn convert_selection(app: &AppHandle, forced: Option<npt_core::preeti::Direction>) {
+    use npt_core::preeti::Direction;
+
+    if let Some(window) = app.get_webview_window(PANEL) {
+        if window.is_focused().unwrap_or(false) {
+            log("text: skipped, panel has focus");
+            report_shortcut(app, "panel_focused", "", 0, Vec::new());
+            return;
+        }
+    }
+
+    let clipboard = app.clipboard();
+    // The hotkey fires while Ctrl and Alt are still physically down; injecting
+    // Ctrl+C on top of that produces Alt+C, which is not a copy.
+    wait_for_modifiers();
+    let previous = clipboard.read_text().ok().filter(|text| !text.is_empty());
+
+    if !send_ctrl(0x43) {
+        log("text: could not send copy");
+        report_shortcut(app, "failed", "", 0, Vec::new());
+        return;
+    }
+    let Some(selection) = wait_for_selection(&clipboard, previous.as_deref()) else {
+        log("text: no selection");
+        restore_clipboard(&clipboard, previous.as_deref());
+        report_shortcut(app, "no_selection", "", 0, Vec::new());
+        return;
+    };
+
+    let direction = forced.unwrap_or_else(|| npt_core::preeti::detect(&selection));
+    let (converted, label) = match direction {
+        Direction::ToPreeti => (npt_core::preeti::unicode_to_preeti(&selection), "to_preeti"),
+        Direction::ToUnicode => (npt_core::preeti::preeti_to_unicode(&selection), "to_unicode"),
+    };
+
+    if converted.text == selection {
+        log("text: nothing to convert");
+        restore_clipboard(&clipboard, previous.as_deref());
+        report_shortcut(app, "unchanged", label, 0, Vec::new());
+        return;
+    }
+
+    if clipboard.write_text(&converted.text).is_err() || !send_ctrl(0x56) {
+        log("text: could not paste");
+        restore_clipboard(&clipboard, previous.as_deref());
+        report_shortcut(app, "failed", label, 0, Vec::new());
+        return;
+    }
+    std::thread::sleep(Duration::from_millis(220));
+    restore_clipboard(&clipboard, previous.as_deref());
+
+    let chars = converted.text.chars().count();
+    log(&format!(
+        "text: {label} {} chars -> {chars} chars, {} unconverted",
+        selection.chars().count(),
+        converted.unconverted.len()
+    ));
+    let code = if converted.unconverted.is_empty() { "converted" } else { "partial" };
+    report_shortcut(app, code, label, chars, converted.unconverted);
+}
+
+/// Polls the clipboard until the copy lands. A copy that produces the same text
+/// that was already there is indistinguishable from no copy at all, so it is
+/// treated as no selection rather than pasting stale content.
+fn wait_for_selection(
+    clipboard: &tauri_plugin_clipboard_manager::Clipboard<tauri::Wry>,
+    previous: Option<&str>,
+) -> Option<String> {
+    let deadline = Instant::now() + Duration::from_millis(900);
+    while Instant::now() < deadline {
+        std::thread::sleep(Duration::from_millis(40));
+        if let Ok(text) = clipboard.read_text() {
+            if !text.is_empty() && previous != Some(text.as_str()) {
+                return Some(text);
+            }
+        }
+    }
+    None
+}
+
+fn restore_clipboard(
+    clipboard: &tauri_plugin_clipboard_manager::Clipboard<tauri::Wry>,
+    previous: Option<&str>,
+) {
+    match previous {
+        Some(text) => {
+            let _ = clipboard.write_text(text);
+        }
+        None => {
+            let _ = clipboard.clear();
+        }
+    }
+}
+
+/// Sends Ctrl plus one virtual key, one event at a time. Some editors ignore a
+/// single zero-delay batch, so the presses are spaced out.
+#[cfg(windows)]
+fn send_ctrl(key: u16) -> bool {
+    use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
+        SendInput, INPUT, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP, VK_CONTROL,
+    };
+
+    fn send(virtual_key: u16, release: bool) -> bool {
+        let mut input: INPUT = unsafe { std::mem::zeroed() };
+        input.r#type = INPUT_KEYBOARD;
+        input.Anonymous.ki = KEYBDINPUT {
+            wVk: virtual_key,
+            wScan: 0,
+            dwFlags: if release { KEYEVENTF_KEYUP } else { 0 },
+            time: 0,
+            dwExtraInfo: 0,
+        };
+        unsafe {
+            SendInput(1, &input, std::mem::size_of::<INPUT>() as i32) == 1
+        }
+    }
+
+    let mut ok = true;
+    for (virtual_key, release) in [(VK_CONTROL, false), (key, false), (key, true), (VK_CONTROL, true)] {
+        ok &= send(virtual_key, release);
+        std::thread::sleep(Duration::from_millis(12));
+    }
+    ok
+}
+
+#[cfg(not(windows))]
+fn send_ctrl(_key: u16) -> bool {
+    false
+}
+
+/// Blocks until the modifier keys from the hotkey chord are released, so the
+/// next injected chord is read as Ctrl plus a letter.
+#[cfg(windows)]
+fn wait_for_modifiers() {
+    use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
+        GetAsyncKeyState, VK_CONTROL, VK_MENU, VK_SHIFT,
+    };
+    let deadline = Instant::now() + Duration::from_millis(1200);
+    while Instant::now() < deadline {
+        let held = unsafe {
+            [VK_CONTROL, VK_MENU, VK_SHIFT]
+                .into_iter()
+                .any(|key| GetAsyncKeyState(key as i32) < 0)
+        };
+        if !held {
+            return;
+        }
+        std::thread::sleep(Duration::from_millis(15));
+    }
+}
+
+#[cfg(not(windows))]
+fn wait_for_modifiers() {}
 
 // ---------------------------------------------------------------- updates
 
@@ -740,11 +1019,32 @@ fn main() {
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 .with_handler(|app, shortcut, event| {
-                    let target =
-                        Shortcut::new(Some(Modifiers::CONTROL | Modifiers::ALT), Code::KeyN);
-                    if event.state() == ShortcutState::Pressed && *shortcut == target {
-                        toggle_panel(app, None);
+                    if event.state() != ShortcutState::Pressed {
+                        return;
                     }
+                    let ctrl_alt = Modifiers::CONTROL | Modifiers::ALT;
+                    let panel =
+                        Shortcut::new(Some(ctrl_alt), Code::KeyN);
+                    if *shortcut == panel {
+                        toggle_panel(app, None);
+                        return;
+                    }
+                    let to_preeti = Shortcut::new(Some(ctrl_alt), Code::KeyP);
+                    let to_unicode = Shortcut::new(Some(ctrl_alt), Code::KeyU);
+                    let forced = if *shortcut == to_preeti {
+                        let mode = app.state::<AppState>().snapshot().shortcut_mode;
+                        if mode == "split" {
+                            Some(npt_core::preeti::Direction::ToPreeti)
+                        } else {
+                            None
+                        }
+                    } else if *shortcut == to_unicode {
+                        Some(npt_core::preeti::Direction::ToUnicode)
+                    } else {
+                        return;
+                    };
+                    let handle = app.clone();
+                    std::thread::spawn(move || convert_selection(&handle, forced));
                 })
                 .build(),
         )
@@ -817,6 +1117,7 @@ fn main() {
                         .expect("hotkey lock") = Some(error.to_string());
                 }
             }
+            sync_text_shortcuts(app.handle());
 
             let ad = current_ad(&settings);
             let day = npt_core::describe(ad).expect("today is inside the BS range");
@@ -873,6 +1174,8 @@ fn main() {
             hide_panel,
             quit_app,
             set_channel,
+            convert_text,
+            set_shortcut_mode,
             check_update,
             install_update
         ])

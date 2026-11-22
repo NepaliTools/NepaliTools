@@ -38,10 +38,34 @@ Nepali?
 The BS pickers always show Nepali months and Devanagari digits, in both interface
 languages: `२०८३` / `मंसिर` / `५`.
 
+## Text module
+
+- Two directions: Preeti to Unicode and Unicode to Preeti. The switch sits above
+  the boxes, and Swap exchanges their contents and the direction.
+- Conversion is live: typing or pasting in one box updates the other. No convert
+  button.
+- Each direction has a Copy button.
+- Characters Preeti cannot write are left in the output and listed under the
+  boxes, so a name or a matra is never silently replaced with a guess.
+- It runs offline; the table ships inside the binary.
+
+### In-place shortcut
+
+| Mode | Key | Effect |
+|---|---|---|
+| Auto | `Ctrl+Alt+P` | Converts the selection and follows its script |
+| Split | `Ctrl+Alt+P` | Unicode to Preeti |
+| Split | `Ctrl+Alt+U` | Preeti to Unicode |
+
+The app copies the selection, converts it, pastes it back and restores the
+clipboard. It only preserves clipboard text. It refuses to run while the panel has
+focus, and reports an empty selection instead of converting stale clipboard
+content. Elevated windows and apps that refuse synthetic input are not supported.
+
 ## Modules page
 
-Turn Today or Converter on or off. A disabled module is not initialised and its
-tab disappears. With one module enabled the tab bar hides. The header keeps
+Turn Today, Converter or Text on or off. A disabled module is not initialised and
+its tab disappears. With one module enabled the tab bar hides. The header keeps
 showing today either way.
 
 ## Settings

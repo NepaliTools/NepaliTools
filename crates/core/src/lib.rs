@@ -8,6 +8,8 @@
 use std::fmt;
 use std::sync::LazyLock;
 
+pub mod preeti;
+
 /// First supported BS year (inclusive).
 pub const BS_MIN_YEAR: i32 = 1975;
 /// Last supported BS year (inclusive). Years after 2090 are projected data.

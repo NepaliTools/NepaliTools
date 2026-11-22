@@ -216,6 +216,64 @@ main::-webkit-scrollbar-thumb {
   color: var(--muted);
 }
 
+.directions {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+}
+
+.dir {
+  flex: 1;
+  padding: 6px 4px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.dir.is-active {
+  background: var(--bg);
+  color: var(--text);
+}
+
+textarea {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 9px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+  width: 100%;
+  resize: vertical;
+  min-height: 74px;
+}
+
+textarea:focus,
+input:focus,
+select:focus {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.text-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.text-actions .copy {
+  flex: 1;
+}
+
 input[type="date"],
 select {
   background: var(--panel);

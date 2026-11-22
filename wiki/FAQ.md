@@ -37,8 +37,19 @@ next milestone on the [Roadmap](Roadmap).
 
 No. It is Rust plus the system webview, with a plain HTML/CSS/JS panel.
 
-### Is the data trustworthy?
+### How do I convert Preeti text to Unicode?
 
+Open the Text tab and paste the text; the Unicode appears in the other box. To
+convert a selection in another application, press `Ctrl+Alt+P`. It runs offline.
+
+### Does the shortcut touch my clipboard?
+
+It saves the clipboard text, copies your selection, converts it, pastes the result
+and puts the text back. An image or rich content on the clipboard is not preserved.
+It refuses to run while the panel has focus, and with nothing selected it reports
+that instead of converting old clipboard content.
+
+### Is the data trustworthy?
 The table comes from four sources. A strict majority decides each month, and
 every disagreement is written to `data/overrides.csv` with its competing values.
 The test suite fails if an unexplained disagreement appears.

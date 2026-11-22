@@ -3,7 +3,23 @@
 All notable changes are recorded here. The format follows Keep a Changelog, and
 the project uses Semantic Versioning.
 
-## [Unreleased]
+## [0.1.4] - 2026-11-22
+
+Text module: Preeti and Unicode in both directions, plus an in-place shortcut.
+
+### Added
+
+- Text module: a live two-way converter between the legacy Preeti encoding and
+  Unicode Devanagari, with copy and swap. Unrepresentable characters stay as they
+  are and are listed under the box.
+- `npt_core::preeti`: dependency-free conversion with a vendored key table
+  (`data/preeti-map.tsv`) and a corpus of 81 pairs (`data/preeti-corpus.tsv`)
+  replayed in both directions by `cargo test`.
+- Global shortcut: `Ctrl+Alt+P` converts the selection in place; in split mode
+  `Ctrl+Alt+P` is Unicode to Preeti and `Ctrl+Alt+U` the reverse. The clipboard is
+  restored, the panel is never a target, and a refused copy is reported instead
+  of pasting stale content.
+- `data/SOURCES.md` records the Preeti table source, version and SHA256.
 
 ### Fixed
 
