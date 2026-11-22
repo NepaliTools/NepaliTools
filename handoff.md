@@ -12,7 +12,8 @@ plain HTML and CSS panel.
 
 | Version | Channel | Date | Notes |
 |---|---|---|---|
-| 0.1.9 | alpha | 2026-11-22 | Half फ joins correctly; fonts for both boxes. Current. |
+| 0.1.10 | alpha | 2026-11-22 | Joined half फ (आफ्नो); Preeti in Sagarmatha, Unicode in Kalimati. Current. |
+| 0.1.9 | alpha | 2026-11-22 | Half फ attempt with an explicit halant. Superseded. |
 | 0.1.8 | alpha | 2026-11-22 | Preeti in Sagarmatha, Unicode in Kalimati. |
 | 0.1.7 | alpha | 2026-11-22 | Real-document Preeti variants and punctuation. |
 | 0.1.6 | alpha | 2026-11-22 | Correct ra-foot and ru glyphs. |
@@ -81,7 +82,7 @@ password), `gh` with `repo` scope, and the site checkout at `..\nepalitools-site
    default branch tip, not the working tree; if the tag lands on the previous
    commit, move it with
    `gh api --method PATCH repos/NepaliTools/NepaliTools/git/refs/tags/<tag> -f sha=<sha> -F force=true`.
-6. Run `tools\release.ps1 -Version 0.2.0 -Channel alpha`. It builds, signs,
+6. Run `tools\release.ps1 -Version 0.2.1 -Channel alpha`. It builds, signs,
    writes the manifest and checksums, creates the release, and deploys the site.
 
 The updater key is the trust root. Losing it means existing installs cannot

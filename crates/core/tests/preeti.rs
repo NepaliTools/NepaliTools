@@ -213,12 +213,12 @@ fn punctuation_uses_preeti_keys() {
 }
 
 #[test]
-fn half_pha_joins_with_an_explicit_halant() {
-    // `ˆ` is a circumflex in Sagarmatha, not a half फ; `km\` is the form that
-    // draws आफ्नो correctly.
-    pair("cfkm\\gf]", "आफ्नो");
-    assert_eq!(unicode_to_preeti("आफ्नो").text, "cfkm\\gf]");
-    pair("cfkm\\g}", "आफ्नै");
+fn half_pha_uses_the_joined_glyph() {
+    // The fonts draw `km\` with a visible halant; their own documents use the
+    // private-use half glyph, which joins into आफ्नो.
+    assert_eq!(unicode_to_preeti("आफ्नो").text, "cf\u{f000}gf]");
+    assert_eq!(unicode_to_preeti("आफ्नै").text, "cf\u{f000}g}");
+    pair("cf\u{f000}gf]", "आफ्नो");
 }
 
 #[test]

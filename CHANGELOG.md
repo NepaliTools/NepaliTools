@@ -3,6 +3,14 @@
 All notable changes are recorded here. The format follows Keep a Changelog, and
 the project uses Semantic Versioning.
 
+## [0.1.10] - 2026-11-22
+
+### Fixed
+
+- Half फ now uses the fonts' own half glyph (the private-use key the source
+  report uses), so आफ्नो draws joined. 0.1.9 used फ plus an explicit halant,
+  which the font draws with a visible halant: आफ्‌नो.
+
 ## [0.1.9] - 2026-11-22
 
 ### Fixed
