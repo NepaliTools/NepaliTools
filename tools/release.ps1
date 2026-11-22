@@ -80,7 +80,8 @@ New-Item -ItemType Directory -Force -Path $siteUpdates | Out-Null
 
 $checksumFiles = @($setupAsset, $portableZip, $latest, "$setupAsset.sig")
 $checksums = foreach ($file in $checksumFiles) {
-    $hash = (Get-FileHash $file -Algorithm SHA256).Hash.ToLowerInvariant()
+    $text = certutil -hashfile $file SHA256
+    $hash = ($text | Where-Object { $_ -match '^[0-9a-fA-F ]{64,}$' } | Select-Object -First 1) -replace ' ', ''
     "$hash  $(Split-Path $file -Leaf)"
 }
 [IO.File]::WriteAllText((Join-Path $out 'SHA256SUMS.txt'), ($checksums -join "`r`n") + "`r`n", (New-Object System.Text.UTF8Encoding($false)))
