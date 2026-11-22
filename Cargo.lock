@@ -2495,7 +2495,7 @@ dependencies = [
 
 [[package]]
 name = "nepalitoolkit"
-version = "0.1.7"
+version = "0.1.8"
 dependencies = [
  "chrono",
  "npt-core",
@@ -2540,7 +2540,7 @@ dependencies = [
 
 [[package]]
 name = "npt-core"
-version = "0.1.7"
+version = "0.1.8"
 
 [[package]]
 name = "num-conv"

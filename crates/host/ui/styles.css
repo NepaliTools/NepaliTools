@@ -274,6 +274,20 @@ select:focus {
   flex: 1;
 }
 
+/* Preeti text is drawn with the legacy font so the keys read as Nepali; the
+   Unicode box uses Kalimati, the font most Nepali readers expect. If a font is
+   missing, the stack falls back to a Unicode Devanagari face and the Preeti box
+   shows the raw keys, which is the honest fallback. */
+.font-preeti {
+  font-family: "Sagarmatha", "Preeti", "Nirmala UI", "Noto Sans Devanagari", sans-serif;
+  font-size: 15px;
+}
+
+.font-unicode {
+  font-family: "Kalimati", "Nirmala UI", "Noto Sans Devanagari", sans-serif;
+  font-size: 15px;
+}
+
 input[type="date"],
 select {
   background: var(--panel);

@@ -397,6 +397,10 @@ function renderText() {
   $("dir-to-preeti").classList.toggle("is-active", !toUnicode);
   $("text-in-label").textContent = toUnicode ? s.textInPreeti : s.textInUnicode;
   $("text-out-label").textContent = toUnicode ? s.textOutUnicode : s.textOutPreeti;
+  $("text-in").classList.toggle("font-preeti", toUnicode);
+  $("text-in").classList.toggle("font-unicode", !toUnicode);
+  $("text-out").classList.toggle("font-unicode", toUnicode);
+  $("text-out").classList.toggle("font-preeti", !toUnicode);
   $("text-in").placeholder = toUnicode ? "g]kfn" : "नेपाल";
   $("text-copy").textContent = s.copy;
   $("text-swap").textContent = s.textSwap;

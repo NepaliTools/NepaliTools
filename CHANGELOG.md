@@ -3,6 +3,15 @@
 All notable changes are recorded here. The format follows Keep a Changelog, and
 the project uses Semantic Versioning.
 
+## [0.1.8] - 2026-11-22
+
+### Changed
+
+- The Text module draws its Preeti box with Sagarmatha (falling back to Preeti,
+  then to a Unicode Devanagari face) and its Unicode box with Kalimati. The Preeti
+  box now reads as Nepali instead of raw keys. The fonts are referenced from the
+  system; nothing is bundled, and a machine without them falls back as before.
+
 ## [0.1.7] - 2026-11-22
 
 ### Added
