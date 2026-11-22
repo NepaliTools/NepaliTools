@@ -25,7 +25,7 @@ survive the round trip was fixed.
 - **फ.** फ and its half form convert through `km` and `ˆ`, so आफ्नो and फ्राई
   work, and `k|m` is फ्र.
 
-The corpus is now 126 pairs, including 26 variants taken from the report. On the
+The corpus is now 125 pairs, including 26 variants taken from the report. On the
 whole document, only typographic dashes and curly quotes are left as they
 arrived.
 

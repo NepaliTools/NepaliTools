@@ -86,7 +86,7 @@ table it ships as much as on its code. NepaliToolkit supports BS 1975 to 2100,
 which is 1918-04-13 to 2044-04-13 in the Gregorian calendar. Years after 2090
 have no published gazette yet, and the interface marks them as projected.
 
-Preeti conversion is checked against a corpus of 126 pairs in
+Preeti conversion is checked against a corpus of 125 pairs in
 `data/preeti-corpus.tsv`. Each pair was checked against an independent
 MIT-licensed converter where that converter covers the case; rows marked as
 extensions are explained in the file. `cargo test` replays each one in both

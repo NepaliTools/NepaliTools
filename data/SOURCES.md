@@ -65,7 +65,7 @@ particular document.
 
 Rows that the oracle did not confirm were dropped rather than guessed, so the
 table covers the keys that round-trip in practice. `data/preeti-corpus.tsv`
-records 126 pairs. Each was checked against the oracle where the oracle covers the
+records 125 pairs. Each was checked against the oracle where the oracle covers the
 case; the rows where Preeti needs a convention of this project (the independent
 ऐ, mixed English, and the document variants) are marked in the file. `cargo test
 -p npt-core --test preeti` replays them in both directions.
