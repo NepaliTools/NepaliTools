@@ -1,76 +1,114 @@
-# Handoff: NepaliToolkit 0.1.3 released (channels)
+# Handoff: NepaliToolkit
 
-Date: 2026-11-22
-Toolkit: `C:\Users\aaxyat\Documents\Projects\NepaliToolkit` (branch `main`)
-Site: `C:\Users\aaxyat\Documents\Projects\nepalitools-site` (branch `main`)
+Updated 2026-11-22. Toolkit `main` at `a2bf00b`, site `main` at `52af68d`.
 
-## State
+A Windows tray app for Bikram Sambat: today's Nepali date in Devanagari on the
+icon, a two-way BS and AD converter, English or Nepali interface, no telemetry.
+Rust core with no dependencies, Tauri 2 host, plain HTML and CSS panel.
 
-0.1.3 is published and live, with the Stable, Beta and Alpha channel choice.
+## Released
 
-- Release: https://github.com/NepaliTools/NepaliTools/releases/tag/v0.1.3-alpha
-  (prerelease). Assets: signed installer 5,223,040 bytes, portable zip 4,694,718
-  bytes, `latest.json`, `.sig`, `SHA256SUMS.txt`.
-- Live manifests: `updates/alpha.json` and `updates/latest.json` serve 0.1.3;
-  `updates/beta.json` and `updates/stable.json` are absent, which the app shows as
-  "No Beta release yet" rather than an error.
-- Installed 0.1.3 on this machine: alpha reports "You are on the latest release",
-  beta reports "No Beta release yet", and the choice persists in `settings.json`.
-- Site deployed as `cb7f93e8` from the release script.
+| Version | Channel | Date | Notes |
+|---|---|---|---|
+| 0.1.3 | alpha | 2026-11-22 | Update channels: Stable, Beta, Alpha. Current release. |
+| 0.1.2 | alpha | 2026-11-21 | Manual update check, signed installer, quiet install. |
+| 0.1.0 | alpha | 2026-11-21 | First public alpha. No updater. |
 
-The 0.1.3 tag was created by `gh release create` against the remote default
-branch at the time, which was the 0.1.2 commit, because the channel work was not
-pushed before the release. Push the repo and repoint the tag before treating the
-tag as the source of the release.
+Each release is a GitHub prerelease with a signed NSIS installer, a portable zip,
+`latest.json`, the `.sig` and `SHA256SUMS.txt`.
 
-## How it was released
+## How updates work
 
-`tools/release.ps1 -Version 0.1.3 -Channel alpha` completed end to end after two
-PowerShell fixes:
+- Settings has a Channel choice and a Check for updates button. Nothing checks on
+  a timer or at startup.
+- The check reads `https://nepalitools.pages.dev/updates/<channel>.json`. That
+  static manifest carries the version, notes, installer URL and signature.
+- Install downloads the signed installer from GitHub Releases, verifies it
+  against the public key in `crates/host/tauri.conf.json`, then runs the NSIS
+  updater quietly (`/S /R`) and restarts the app.
+- `requireSignedVersion` binds the version in the signature to the manifest, so a
+  tampered manifest cannot pair a new version with an old installer.
+- Portable builds are marked in the card and never offered the installer. They
+  cannot replace themselves.
+- `updates/latest.json` mirrors alpha for 0.1.2, the first build with an updater
+  and no channel setting.
 
-- `ConvertTo-Json -Depth 8` hangs indefinitely once the object carries the
-  multi-KB release notes. The script now encodes the manifest with a small
-  escaping helper instead.
-- `Compress-Archive` was replaced by `ZipFile::CreateFromDirectory`. It was not
-  the hang, but the archive is identical and faster.
+Channels are promotion tracks, not version lines. A build ships to alpha first;
+promotion copies the manifest, so the bytes and signature never change:
 
-## The updater
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\promote.ps1 -From alpha -To beta
+powershell -ExecutionPolicy Bypass -File tools\promote.ps1 -From beta -To stable
+```
 
-- `tauri-plugin-updater` 2.14.1, `requireSignedVersion`, Windows
-  `installMode: quiet` (`/S /R`: no installer window, app restarts).
-- The endpoint is chosen at runtime from the channel:
-  `https://nepalitools.pages.dev/updates/{stable,beta,alpha}.json`. The endpoint in
-  `tauri.conf.json` remains the fallback for 0.1.2, and `latest.json` mirrors
-  alpha for that build.
-- Channels are promotion tracks. A build ships to alpha first; `tools/promote.ps1
-  -From alpha -To beta` copies the manifest without rebuilding, so stable never
-  gets bytes that did not first ship on alpha.
-- Public key in `crates/host/tauri.conf.json`. Private key
-  `C:\Users\aaxyat\.tauri\nepalitoolkit.key`: copy to `~/.tauri/` on the Mac and
-  back it up offline.
-- Evidence: `docs/evidence/updater-channel-alpha.png`,
-  `updater-channel-empty.png`, `updater-available.png`, `updater-current.png`;
-  `ACCEPTANCE.md` rows 18 to 25.
+An empty channel answers 404, which the app shows as "No Beta release yet". That
+is a normal state, not an error.
 
-## Remaining
+## Releasing
 
-- Row 21 of `ACCEPTANCE.md` cites `docs/evidence/updater-portable.png`, which
-  does not exist yet. Launch the 0.1.2 portable exe, open Settings and capture
-  the card marked `portable` with no Install button, then add the file.
-- The installer still closes after copying instead of showing a finish page.
-- Windows code signing is still absent; the updater signature is not SmartScreen
-  trust.
-- The 0.1.0 release cannot update itself. Its users install 0.1.2 once.
-- macOS menu-bar build is the next milestone in `ROADMAP.md`. The Rust core is
-  platform-neutral; the host is Windows-specific today.
+Requirements: the updater key at `$HOME\.tauri\nepalitoolkit.key` (empty
+password), `gh` with `repo` scope, and the site checkout at `..\nepalitools-site`.
+
+1. Bump `version` in `Cargo.toml` and `crates/host/tauri.conf.json` (they must
+   match).
+2. Write `docs/release-notes-<version>-<channel>.md`.
+3. Update install links in `README.md`, `wiki/Installation.md` and the site.
+4. `cargo test --workspace`.
+5. Commit before releasing, because `gh release create` tags the remote default
+   branch tip, not the local working tree.
+6. Run `tools\release.ps1 -Version 0.1.4 -Channel alpha`. It builds, signs,
+   writes the manifest and checksums, creates the release, and deploys the site.
+   `-SkipPublish` and `-SkipSiteDeploy` split the steps.
+
+The updater key is the trust root. Losing it means existing installs cannot
+verify a new release and everyone reinstalls by hand. Keep an offline backup and
+never commit it.
+
+## Next
+
+- Promote a settled 0.1.3 to beta, then stable, with `promote.ps1`.
+- The installer closes after copying instead of showing a finish page. Fix in
+  the NSIS hook if it keeps bothering people.
+- No code signing. The updater signature proves the project built the installer;
+  it does not satisfy SmartScreen.
+- macOS menu-bar build is the next milestone in `ROADMAP.md`. The core is
+  platform neutral; the host is Windows only. Signing needs a Mac.
+- The GitHub wiki repo was never created, so `wiki/*.md` is only in the repo.
+  Save one page in the web UI, then clone `NepaliTools.wiki.git` and push the
+  pages.
+- Years after 2090 are single-source projections and stay labelled as such until
+  a gazette exists.
+
+## Where things are
+
+- Core engine: `crates/core` (conversion, formatting, Devanagari digits, tests).
+- Host: `crates/host/src/main.rs` (tray, settings, commands, updater), panel in
+  `crates/host/ui`.
+- Data: `data/bs-months.csv` plus `data/SOURCES.md`; refresh with
+  `tools/fetch-bs-data.ps1`, the only build-time network step.
+- Evidence: `docs/evidence/`, indexed by `ACCEPTANCE.md`.
+- Release mechanics: `docs/RELEASING.md`.
+- Brand: `assets/brand/BRAND.md`.
 
 ## Machine notes
 
-- `Get-FileHash` hangs indefinitely in this shell. Use
-  `certutil -hashfile <file> SHA256`.
-- The panel can only be driven through WebView2's remote debugger when the app is
-  started with `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9223`;
-  a normal autostart launch has no port. Helpers: `tools/cdp-eval.ps1`,
-  `tools/capture-panel.ps1`, `tools/ui-step.ps1`.
-- `python -m http.server` binds fail on some ports here (WinError 10013); 8811
-  and 8813 worked.
+These cost hours once, all on this Windows box:
+
+- PowerShell 5.1 `ConvertTo-Json -Depth` hangs once an object carries a multi-KB
+  string. `tools/release.ps1` encodes the manifest by hand instead.
+- `Compress-Archive` was replaced by `ZipFile::CreateFromDirectory`; it stalls on
+  a 5 MB folder.
+- Use `certutil -hashfile <file> SHA256`; `Get-FileHash` is fine but the release
+  script keeps one hashing path.
+- The panel cannot be driven by CDP unless it starts with
+  `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9223`. A normal
+  autostart launch has no port.
+- Capturing the panel: a visible console steals focus and the panel hides.
+  Run `tools\ui-step.ps1` with `-WindowStyle Hidden`. `tools\capture-panel.ps1`
+  re-shows a hidden panel, which resets its scroll to the top.
+- The settings screen is taller than the panel. To photograph the update card,
+  hide the rows above it with inline styles, then capture.
+- `python -m http.server` fails to bind some ports here (WinError 10013). 8811
+  and 8813 work.
+- WebView2 `157.0.4341.x`, 125% scaling, Windows 11 26200. The tray badge is
+  chosen from the scale, and the log prints which asset it picked.
